@@ -1,0 +1,53 @@
+/**
+ * control.js — glue between input, sound and the game: keyboard bindings,
+ * the timed cut sequence, and gauge moves with a tick sound.
+ */
+import { sfx } from '../audio/sfx.js';
+
+/** Live state of the F / J cut keys (read by the cut buttons each frame). */
+export const keys = { f: false, j: false };
+
+/** Move the gauge; ticks once per 1/16" crossed. */
+export function moveGauge(game, v) {
+  const before = game.state.gauge;
+  if (game.setGauge(v) && Math.floor(game.state.gauge * 16) !== Math.floor(before * 16)) sfx.tick();
+}
+
+export function doJog(game) { if (game.jog()) sfx.rattle(); }
+export function doClamp(game) { if (game.toggleClamp()) sfx.hiss(); }
+
+/** Blade down at 330 ms (pieces split), back up and clamp released at 820 ms. */
+export function requestCut(game) {
+  if (!game.beginCut()) return;
+  setTimeout(() => { sfx.thunk(); game.cut(); }, 330);
+  setTimeout(() => { game.afterCut(); sfx.hiss(); }, 820);
+}
+
+export function bindKeyboard(game) {
+  const down = (e) => {
+    if (e.target.tagName === 'INPUT') return;
+    const k = e.key.toLowerCase();
+    if (k === 'f' || k === 'j') { keys[k] = true; return; }
+    const repeatable = ['arrowup', 'arrowdown', 'pageup', 'pagedown'].includes(k);
+    if (e.repeat && !repeatable) return;
+    if (k === 'q') doJog(game);
+    else if (k === 'w') doClamp(game);
+    else if (k === 'r') game.rotate(1);
+    else if (k === 't') game.rotate(2);
+    else if (e.target.closest && e.target.closest('.wheel')) return; // the wheel handles its own arrows
+    else if (k === 'arrowup') { e.preventDefault(); moveGauge(game, game.state.gauge + (e.shiftKey ? 1 / 64 : 1 / 16)); }
+    else if (k === 'arrowdown') { e.preventDefault(); moveGauge(game, game.state.gauge - (e.shiftKey ? 1 / 64 : 1 / 16)); }
+    else if (k === 'pageup') { e.preventDefault(); moveGauge(game, game.state.gauge + 1); }
+    else if (k === 'pagedown') { e.preventDefault(); moveGauge(game, game.state.gauge - 1); }
+  };
+  const up = (e) => { const k = e.key.toLowerCase(); if (k === 'f' || k === 'j') keys[k] = false; };
+  const blur = () => { keys.f = keys.j = false; };
+  document.addEventListener('keydown', down);
+  document.addEventListener('keyup', up);
+  window.addEventListener('blur', blur);
+  return () => {
+    document.removeEventListener('keydown', down);
+    document.removeEventListener('keyup', up);
+    window.removeEventListener('blur', blur);
+  };
+}

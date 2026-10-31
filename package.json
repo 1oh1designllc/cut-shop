@@ -1,0 +1,28 @@
+{
+  "name": "cut-shop",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Cut Shop — a paper-cutting game on an industrial guillotine cutter.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node tests/geometry-harness.js && node tests/classify-harness.js && node tests/game-harness.js",
+    "check": "npm test && npm run build"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.1",
+    "vite": "^5.4.0"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-win32-x64-msvc": "4.64.2"
+  },
+  "overrides": {
+    "rollup": "4.64.2"
+  }
+}
