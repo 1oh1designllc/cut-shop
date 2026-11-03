@@ -4,7 +4,8 @@ import { JOBS } from '../core/jobs.js';
 import { sfx } from '../audio/sfx.js';
 import { drawTable } from '../render/tableView.js';
 import { createFrontRenderer } from '../render/frontView.js';
-import { useSnapshot } from './hooks.js';
+import { useSnapshot, useCompact } from './hooks.js';
+import Compact from './Compact.jsx';
 import { bindKeyboard } from './control.js';
 import Header from './Header.jsx';
 import TablePanel from './TablePanel.jsx';
@@ -25,6 +26,8 @@ export default function App() {
   // Render options read every frame (a ref, so changing them doesn't re-render React).
   const opts = useRef({ guides: true, loupeX: 0.25, reduceMotion, tableMap: null });
   opts.current.guides = guides;
+  const compact = useCompact();
+  opts.current.fit = compact;
 
   useEffect(() => { sfx.on = sound; }, [sound]);
 
@@ -46,6 +49,18 @@ export default function App() {
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
   }, [game]);
+
+  if (compact) {
+    return (
+      <div className="app compact">
+        <Compact
+          game={game} s={s} tableView={tableView} frontView={frontView} opts={opts}
+          guides={guides} onGuides={setGuides} sound={sound} onSound={() => setSound((v) => !v)}
+        />
+        {s.done && <Results game={game} />}
+      </div>
+    );
+  }
 
   return (
     <div className="app">

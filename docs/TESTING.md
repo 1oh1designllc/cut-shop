@@ -48,3 +48,6 @@ To test on your phone on the same Wi-Fi: `npm run dev -- --host`, then open the 
 ## 4. Bugs found
 
 Log here as: date · device · what happened · steps.
+
+- 2026-11-03 · phone · Table view too small to see where the blade will cut → fixed: phone camera zooms to the lift, gauge and cut line; bigger loupe.
+- 2026-11-03 · phone · Scrolling between the table view and the Jog/Clamp/Cut controls broke the flow → fixed: one-screen phone layout with the controls pinned at the bottom.

@@ -44,7 +44,7 @@ function drawScene(ctx, V, px, t, game, opts, loupe) {
   ctx.strokeStyle = 'rgba(255,59,48,.28)'; ctx.lineWidth = 7 * lw; ctx.beginPath(); ctx.moveTo(-0.5, 0); ctx.lineTo(21, 0); ctx.stroke();
   ctx.strokeStyle = '#ff3b30'; ctx.lineWidth = (loupe ? 1 : 1.6) * lw; ctx.beginPath(); ctx.moveTo(-0.5, 0); ctx.lineTo(21, 0); ctx.stroke();
   if (!loupe) {
-    const X = 20.3, ah = 0.3;
+    const X = opts.dimX ?? 20.3, ah = 0.3;
     ctx.strokeStyle = '#f2c230'; ctx.fillStyle = '#f2c230'; ctx.lineWidth = 1.2 * lw;
     ctx.beginPath(); ctx.moveTo(X, -g); ctx.lineTo(X, 0); ctx.stroke();
     ctx.beginPath(); ctx.moveTo(X, -g); ctx.lineTo(X - ah * 0.5, -g + ah); ctx.lineTo(X + ah * 0.5, -g + ah); ctx.fill();
@@ -52,7 +52,7 @@ function drawScene(ctx, V, px, t, game, opts, loupe) {
     ctx.save(); ctx.translate(X - 0.25, -g / 2); ctx.rotate(-Math.PI / 2); ctx.scale(lw, lw);
     ctx.font = '600 13px "Share Tech Mono", monospace'; ctx.textAlign = 'center'; ctx.fillStyle = '#f2c230';
     ctx.fillText(frac(g) + '"', 0, 0); ctx.restore();
-    ctx.save(); ctx.translate(20.9, 0.5); ctx.scale(lw, lw); ctx.font = '600 11px "Saira Condensed", sans-serif';
+    ctx.save(); ctx.translate(X + 0.6, 0.5); ctx.scale(lw, lw); ctx.font = '600 11px "Saira Condensed", sans-serif';
     ctx.textAlign = 'right'; ctx.fillStyle = '#ff6a60'; ctx.fillText('CUT LINE', 0, 0);
     ctx.fillStyle = 'rgba(17,18,20,.7)'; ctx.fillText('OPERATOR ▼', 0, 8.2 / lw); ctx.restore();
     ctx.strokeStyle = 'rgba(235,232,225,.9)'; ctx.lineWidth = 1.2 * lw;
@@ -65,11 +65,24 @@ function drawScene(ctx, V, px, t, game, opts, loupe) {
 export function drawTable(view, game, t, opts) {
   const { ctx, w, h, dpr } = view;
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
-  const s = Math.min(w / 23, h / 30.2);
-  const ox = (w - 22.4 * s) / 2 + 1.2 * s, oy = (h - 29.8 * s) / 2 + 20.4 * s;
+  // Camera: the whole table, or (opts.fit, phones) framed on the lift, gauge and cut line.
+  const st = game.state, tb = st.table;
+  let target = { cx: 10, cy: -5.5, sw: 23, sh: 30.2 };
+  opts.dimX = 20.3;
+  if (opts.fit && tb) {
+    const x0 = -0.7, x1 = Math.max(tb.W, 3) + 1.2;
+    const y0 = -st.gauge - 1.1, y1 = Math.max(tb.D - st.gauge, 0) + 1.0;
+    target = { cx: (x0 + x1) / 2, cy: (y0 + y1) / 2, sw: x1 - x0, sh: y1 - y0 };
+    opts.dimX = Math.min(20.3, Math.max(tb.W, 3) + 0.5);
+  }
+  if (!opts.cam || opts.reduceMotion) opts.cam = { ...target };
+  else for (const key of ['cx', 'cy', 'sw', 'sh']) opts.cam[key] += (target[key] - opts.cam[key]) * 0.18;
+  const cam = opts.cam;
+  const s = Math.min(w / cam.sw, h / cam.sh);
+  const ox = w / 2 - cam.cx * s, oy = h / 2 - cam.cy * s;
   drawScene(ctx, [dpr * s, 0, 0, dpr * s, dpr * ox, dpr * oy], s, t, game, opts, false);
   // loupe
-  const R = Math.max(54, Math.min(84, w * 0.15)), cx = w - R - 14, cy = h - R - 26, k = 150;
+  const R = opts.fit ? Math.min(76, w * 0.19) : Math.max(54, Math.min(84, w * 0.15)), cx = w - R - 14, cy = h - R - 26, k = 150;
   ctx.save(); ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   ctx.beginPath(); ctx.arc(cx, cy, R, 0, Math.PI * 2); ctx.clip();
   drawScene(ctx, [dpr * k, 0, 0, dpr * k, dpr * (cx - opts.loupeX * k), dpr * cy], k, t, game, opts, true);

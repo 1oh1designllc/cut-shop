@@ -4,14 +4,19 @@ import { GAUGE_MIN, GAUGE_MAX } from '../core/game.js';
 import { useCanvasView } from './hooks.js';
 import { keys, moveGauge, doJog, doClamp, requestCut } from './control.js';
 
-export default function MachinePanel({ game, s, viewRef }) {
+/** The front-view canvas on its own (used by the desktop panel and the phone Machine tab). */
+export function MachineView({ viewRef }) {
   const cv = useRef(null);
   useCanvasView(cv, viewRef, (w) => w * 0.6);
+  return <canvas ref={cv} id="frontCv" />;
+}
+
+export default function MachinePanel({ game, s, viewRef }) {
   return (
     <section className="machine" aria-label="Machine">
       <div className="panel">
         <h2>Machine <em>front view</em></h2>
-        <canvas ref={cv} id="frontCv" />
+        <MachineView viewRef={viewRef} />
       </div>
       <div className="panel controls">
         <h2>Back gauge <em>↑↓ 1/16 · Shift 1/64</em></h2>
@@ -31,7 +36,7 @@ export default function MachinePanel({ game, s, viewRef }) {
   );
 }
 
-function Gauge({ game, s }) {
+export function Gauge({ game, s }) {
   const [text, setText] = useState(null); // null = not editing
   const last = useRef(null);
   const commit = () => {
@@ -97,7 +102,7 @@ function Gauge({ game, s }) {
 
 const STEPS = [[-1, '−1'], [-0.125, '−⅛'], [-1 / 64, '−1/64'], [1 / 64, '+1/64'], [0.125, '+⅛'], [1, '+1']];
 
-function Nudges({ game }) {
+export function Nudges({ game }) {
   const timers = useRef({});
   const stop = () => { clearTimeout(timers.current.to); clearInterval(timers.current.iv); };
   useEffect(() => stop, []);
@@ -120,7 +125,7 @@ function Nudges({ game }) {
 }
 
 /** Two-hand cut: both buttons (or F + J) held 0.22 s. A mouse can hold one for 0.65 s. */
-function CutButtons({ game }) {
+export function useTwoHand(game) {
   const L = useRef(new Set()), R = useRef(new Set());
   const mouseStart = useRef(0);
   const lRef = useRef(null), rRef = useRef(null);
@@ -155,11 +160,24 @@ function CutButtons({ game }) {
     onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); requestCut(game); } },
   });
 
+  return { left: { ref: lRef, ...handlers(L) }, right: { ref: rRef, ...handlers(R) } };
+}
+
+export function CutButton({ side, props }) {
+  return (
+    <button className="cutbtn" type="button" aria-label={side === 'L' ? 'Left cut button' : 'Right cut button'} {...props}>
+      CUT<small>{side === 'L' ? 'F' : 'J'}</small>
+    </button>
+  );
+}
+
+function CutButtons({ game }) {
+  const { left, right } = useTwoHand(game);
   return (
     <div className="cutrow">
-      <button ref={lRef} className="cutbtn" type="button" aria-label="Left cut button" {...handlers(L)}>CUT<small>F</small></button>
+      <CutButton side="L" props={left} />
       <div className="cutmid"><b>TWO-HAND CUT</b>Hold both buttons.<br />Mouse: hold one.</div>
-      <button ref={rRef} className="cutbtn" type="button" aria-label="Right cut button" {...handlers(R)}>CUT<small>J</small></button>
+      <CutButton side="R" props={right} />
     </div>
   );
 }

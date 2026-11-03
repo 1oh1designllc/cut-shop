@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react';
 import { frac } from '../core/geometry.js';
 import { drawThumb } from '../render/sheetArt.js';
 
-export default function Tray({ game, s, guides }) {
+export default function Tray({ game, s, guides, onDone }) {
   const sheets = game.job.sheets;
   return (
     <section className="panel tray" aria-label="Tray">
@@ -14,14 +14,14 @@ export default function Tray({ game, s, guides }) {
       </div>
       <div id="pieces">
         {s.tray.length
-          ? s.tray.map((p, i) => <Piece key={`${i}-${s.cuts}-${s.tray.length}`} game={game} p={p} i={i} guides={guides} />)
+          ? s.tray.map((p, i) => <Piece key={`${i}-${s.cuts}-${s.tray.length}`} game={game} p={p} i={i} guides={guides} onDone={onDone} />)
           : <div className="empty">Empty. Pieces that still need cuts land here.</div>}
       </div>
     </section>
   );
 }
 
-function Piece({ game, p, i, guides }) {
+function Piece({ game, p, i, guides, onDone }) {
   const cv = useRef(null);
   useEffect(() => { drawThumb(cv.current, p, game, { guides }); }, [p, guides, game]);
   const c = game.compat(i);
@@ -32,8 +32,8 @@ function Piece({ game, p, i, guides }) {
       <div className="dims">{frac(p.W)} × {frac(p.D)}"</div>
       <div className="meta">{n} lift{n > 1 ? 's' : ''} · {(n * game.lift).toFixed(1)}" high</div>
       <div className="row">
-        <button className="btn small" type="button" onClick={() => game.loadPiece(i)}>Load</button>
-        <button className="btn small" type="button" disabled={!c.ok} title={c.why || ''} onClick={() => game.addToLift(i)}>Add to lift</button>
+        <button className="btn small" type="button" onClick={() => { if (game.loadPiece(i)) onDone?.(); }}>Load</button>
+        <button className="btn small" type="button" disabled={!c.ok} title={c.why || ''} onClick={() => { if (game.addToLift(i)) onDone?.(); }}>Add to lift</button>
       </div>
     </div>
   );

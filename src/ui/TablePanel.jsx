@@ -4,9 +4,11 @@ import { useCanvasView } from './hooks.js';
 
 const tableHeight = (w) => Math.min(w * 1.3, Math.max(460, window.innerHeight * 0.84));
 
-export default function TablePanel({ game, s, viewRef, opts }) {
+const fillParent = (w, cv) => cv.parentElement.clientHeight;
+
+export default function TablePanel({ game, s, viewRef, opts, fill = false }) {
   const cv = useRef(null);
-  useCanvasView(cv, viewRef, tableHeight);
+  useCanvasView(cv, viewRef, fill ? fillParent : tableHeight);
 
   const [toast, setToast] = useState(null);
   useEffect(() => {

@@ -30,12 +30,13 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 - [x] CLAUDE.md, README, testing runbook
 
 ### Phase 1 — Core loop polish
-- [ ] Playtest Job #2417 on phone + desktop; log every "felt wrong" moment
+- [x] Playtest Job #2417 on phone (2026-11-03): table too small to see the cut; scrolling between view and controls kills the fun
+- [x] Phone one-screen layout: controls pinned at the bottom, table auto-zooms on the lift, Machine tab shows itself during each cut, Tray/Ticket as pull-up sheets
 - [ ] Tutorial job: 4-up postcards, one lift, guided step prompts
 - [ ] Undo last cut (practice mode only)
 - [ ] Best score per job saved on the device (localStorage)
 - [ ] Cut-plan hint: ghost line of the next sensible cut (toggle)
-- [ ] Mobile layout pass: controls reachable with thumbs, table view not too tall
+- [ ] Second phone playtest of the new layout
 - **Milestone 1:** a stranger can finish Job #2417 without being told how
 
 ### Phase 2 — Stocks & jobs
@@ -79,7 +80,8 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 | # | Decision | Options | Status |
 |---|---|---|---|
 | D1 | Game name | *Cut Shop* (working title) / other | open |
-| D2 | Platform after web | Wrap web build with Capacitor for iOS/Android · Rebuild in Godot for Steam/consoles · Stay web | open, decide at Phase 5 |
+| D2 | Platforms | **Direction set 2026-11-03:** two editions on one shared engine: a **PC/Mac edition** (deeper, packaged as a desktop app for Steam/itch) and a **phone edition** (streamlined). Packaging tool (Electron vs Tauri) and phone store wrapper (Capacitor) still to pick, at Phase 5 | direction set |
+| D7 | Desktop-only depth | Candidates: cut-program editor on a programmable cutter, full imposition/cut-sheet planning, more machines, longer career, detailed blade change | open |
 | D3 | Realism level | Sim (every real step) · Arcade (auto-jog, faster) · Both with a toggle | open, decide in Phase 1 playtest |
 | D4 | Typed gauge entry | Free from the start · Unlocked as the "programmable gauge" upgrade | open, prototype has it free |
 | D5 | Monetisation | Free web · Paid · Free + cosmetic | open |

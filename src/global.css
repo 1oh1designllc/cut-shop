@@ -109,3 +109,46 @@ ol.how b{font-weight:600}
 .rgrid{display:grid;grid-template-columns:1fr auto;gap:6px 14px;font-size:15px}
 .rgrid span:nth-child(even){font-family:var(--f-mono);text-align:right}
 @media (prefers-reduced-motion:reduce){#toast{transition:none}}
+
+/* ---------- compact (phone) one-screen layout ---------- */
+@media (max-width:759px){
+  html,body,#root{height:100%}
+  html,body{overflow:hidden;overscroll-behavior:none}
+}
+.app.compact{height:100%;max-width:none;display:flex;flex-direction:column;gap:8px;padding-block:calc(8px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-bottom,0px))}
+.compacthead{display:flex;align-items:center;gap:8px 10px;justify-content:space-between;flex-wrap:wrap}
+.compacthead h1{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:.06em;margin:0;line-height:1;text-transform:uppercase}
+.ministats{display:flex;gap:10px;font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums}
+.ministats b{font-family:var(--f-mono);font-weight:400;font-size:15px;color:var(--fg)}
+.headbtns{display:flex;gap:6px}
+.btn.attn{border-color:var(--safety);color:var(--ink);background:var(--safety)}
+.btn[aria-pressed="true"]{border-color:var(--safety);color:var(--safety)}
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;gap:6px}
+.viewtabs{display:flex;gap:6px}
+.viewtabs .btn{flex:1;padding:5px 8px}
+.stagebody{flex:1;min-height:0;position:relative;border:1px solid var(--line);border-radius:6px;overflow:hidden;background:var(--panel)}
+.stageview{position:absolute;inset:0}
+.stageview .tablepanel{border:0;border-radius:0;height:100%}
+.stageview .tablewrap{height:100%}
+.stageview #tableCv{position:absolute;inset:0}
+.stageview .chip{font-size:12px}
+.machineview{display:flex;align-items:center;justify-content:center;background:#0f1113}
+.machineview canvas{width:100%}
+.deck{display:grid;gap:8px}
+.deck .readout{gap:10px}
+.deck .lcd{padding:4px 10px}
+.deck #gaugeInput{font-size:26px}
+.deck .lcd .sub{font-size:13px}
+.deck .wheel{width:66px;height:66px}
+.deck .nudges .btn{padding:7px 0;font-size:13px}
+.deckrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
+.deck .actions{gap:6px}
+.deck .actions .btn{padding:8px 4px;font-size:14px}
+.deck .cutbtn{width:70px;height:70px;font-size:16px}
+.sheet-backdrop{position:fixed;inset:0;background:rgba(10,11,12,.62);z-index:15;display:flex;align-items:flex-end}
+.sheet{background:var(--panel);width:100%;max-height:82%;overflow:auto;border-radius:10px 10px 0 0;border-top:1px solid var(--line);padding-top:12px;padding-bottom:calc(16px + env(safe-area-inset-bottom,0px));padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:12px}
+.sheethead{display:flex;justify-content:space-between;align-items:center}
+.sheethead h2{margin:0;font-family:var(--f-display);font-weight:600;font-size:16px;letter-spacing:.14em;text-transform:uppercase}
+.sheet .panel{border:0;padding:0;background:none}
+.sheet .tray > h2{display:none}
+.sheetbtns{display:flex;gap:8px}
