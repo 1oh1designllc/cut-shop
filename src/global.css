@@ -114,7 +114,13 @@ ol.how b{font-weight:600}
 @media (max-width:759px){
   html,body,#root{height:100%}
   html,body{overflow:hidden;overscroll-behavior:none}
+  /* Pin the page so iOS can't bounce it or pull-to-refresh during play. */
+  body{position:fixed;inset:0;width:100%}
 }
+.app.compact{touch-action:none;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.app.compact input{-webkit-user-select:text;user-select:text}
+.sheet-backdrop{touch-action:none}
+.sheet{touch-action:pan-y;overscroll-behavior:contain}
 .app.compact{height:100%;max-width:none;display:flex;flex-direction:column;gap:8px;padding-block:calc(8px + env(safe-area-inset-top,0px)) calc(10px + env(safe-area-inset-bottom,0px))}
 .compacthead{display:flex;align-items:center;gap:8px 10px;justify-content:space-between;flex-wrap:wrap}
 .compacthead h1{font-family:var(--f-display);font-weight:800;font-size:20px;letter-spacing:.06em;margin:0;line-height:1;text-transform:uppercase}

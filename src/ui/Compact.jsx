@@ -19,6 +19,19 @@ export default function Compact({ game, s, tableView, frontView, opts, guides, o
   const ms = st.t0 ? (st.done ? st.tEnd : performance.now()) - st.t0 : 0;
   const trayNeedsYou = !s.table && s.tray.length > 0;
 
+  // The game fits one screen: block page drags (pull-to-refresh, bounce, pinch-zoom)
+  // everywhere except inside an open Tray/Ticket sheet, which scrolls.
+  useEffect(() => {
+    const block = (e) => { if (!e.target.closest?.('.sheet')) e.preventDefault(); };
+    const blockGesture = (e) => e.preventDefault();
+    document.addEventListener('touchmove', block, { passive: false });
+    document.addEventListener('gesturestart', blockGesture);
+    return () => {
+      document.removeEventListener('touchmove', block);
+      document.removeEventListener('gesturestart', blockGesture);
+    };
+  }, []);
+
   return (
     <>
       <header className="compacthead">
