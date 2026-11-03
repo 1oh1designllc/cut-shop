@@ -74,6 +74,11 @@ export function Gauge({ game, s }) {
           if (d > Math.PI) d -= 2 * Math.PI;
           if (d < -Math.PI) d += 2 * Math.PI;
           last.current = a;
+          // Near the hub a tiny thumb slip swings the angle wildly: ignore it there.
+          const box = e.currentTarget.getBoundingClientRect();
+          const dist = Math.hypot(e.clientX - (box.left + box.width / 2), e.clientY - (box.top + box.height / 2));
+          if (dist < box.width * 0.18) return;
+          d = Math.max(-0.5, Math.min(0.5, d)); // no single jump bigger than ~1/12"
           moveGauge(game, game.state.gauge + d / (2 * Math.PI)); // one turn = 1"
         }}
         onPointerUp={() => { last.current = null; }}

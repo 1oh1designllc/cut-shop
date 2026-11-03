@@ -139,7 +139,7 @@ ol.how b{font-weight:600}
 .deck .lcd{padding:4px 10px}
 .deck #gaugeInput{font-size:26px}
 .deck .lcd .sub{font-size:13px}
-.deck .wheel{width:66px;height:66px}
+.deck .wheel{width:104px;height:104px}
 .deck .nudges .btn{padding:7px 0;font-size:13px}
 .deckrow{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:10px;align-items:center}
 .deck .actions{gap:6px}
