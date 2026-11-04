@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { clamp, frac, parseIn } from '../core/geometry.js';
 import { GAUGE_MIN, GAUGE_MAX } from '../core/game.js';
 import { useCanvasView } from './hooks.js';
+import LiftControl from './LiftControl.jsx';
 import { keys, moveGauge, doJog, doClamp, requestCut } from './control.js';
 
 /** The front-view canvas on its own (used by the desktop panel and the phone Machine tab). */
@@ -22,8 +23,9 @@ export default function MachinePanel({ game, s, viewRef }) {
         <h2>Back gauge <em>↑↓ 1/16 · Shift 1/64</em></h2>
         <Gauge game={game} s={s} />
         <Nudges game={game} />
+        <LiftControl game={game} s={s} />
         <div className="actions">
-          <button className="btn" type="button" onClick={() => doJog(game)}>Jog lift <kbd>Q</kbd></button>
+          <button className={'btn' + (s.curled ? ' attn' : '')} type="button" onClick={() => doJog(game)}>{s.curled ? 'Decurl' : 'Jog lift'} <kbd>Q</kbd></button>
           <button className={'btn' + (s.clampDown ? ' on' : '')} type="button" onClick={() => doClamp(game)}>
             {s.clampDown ? 'Release' : 'Clamp'} <kbd>W</kbd>
           </button>
@@ -48,7 +50,7 @@ export function Gauge({ game, s }) {
     setText(null);
   };
   const angle = (e, el) => { const r = el.getBoundingClientRect(); return Math.atan2(e.clientY - (r.top + r.height / 2), e.clientX - (r.left + r.width / 2)); };
-  const lift = s.table ? (s.table.layers.length * game.lift).toFixed(1) : '0.0';
+  const pass = s.table ? Math.min(s.liftSheets, s.table.layers.length * game.job.sheets) : 0;
   return (
     <div className="readout">
       <div className="lcd">
@@ -61,7 +63,7 @@ export function Gauge({ game, s }) {
           onBlur={commit}
           onKeyDown={(e) => { if (e.key === 'Enter') e.currentTarget.blur(); if (e.key === 'Escape') { setText(null); e.currentTarget.blur(); } }}
         />
-        <div className="sub"><span>{frac(s.gauge)}"</span><span>LIFT {lift}/{game.job.maxLift}</span></div>
+        <div className="sub"><span>{frac(s.gauge)}"</span><span>LIFT {pass} SH</span></div>
       </div>
       <div
         className="wheel" tabIndex={0} role="slider" aria-label="Gauge hand wheel"

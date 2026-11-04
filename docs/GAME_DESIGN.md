@@ -24,20 +24,27 @@
 | Gutter | Space between pieces on the sheet; with full bleed it's 2 × bleed and gets cut out. |
 | Crop marks | Short lines in the margins marking the trim lines. What the operator aims at. |
 
-## 3. Paper stocks (Phase 2)
+## 3. Paper stocks (Phase 2, from Jude's shop)
 
-| Stock | Caliper | Lift (500 sh) | Play effect |
+Jude's everyday stocks, all on 12×18. The clamp opening is 3½", so caliper sets how many sheets fit in one pass.
+
+| Stock | Caliper | Max sheets / pass | Behaviour in game |
 |---|---|---|---|
-| 20# bond | .004" | 2.0" | Easy. Tall lifts, low wear. Curls if not jogged. |
-| 70# uncoated text | .0045" | 2.25" | Baseline. |
-| 100# gloss text | .0045" | 2.25" | Slippery: needs more clamp pressure or it creeps. |
-| 100# gloss cover | .011" | 5.5" | Short lifts, more wear. **(Phase 1 stock)** |
-| 14pt C2S | .014" | 7.0" | Very short lifts, high wear. |
-| NCR 3-part | .009"/set | — | Heavy clamp leaves marks; glue edge must stay at the head. |
-| Synthetic (polyester) | .010" | 5.0" | Wears the blade fast; rough edge when dull. |
-| Kraft chipboard | .024" | — | Tiny lifts, very high wear, loud. |
+| 10pt C2S cardstock | .010" | 350 | Clamp marks above ~20 sheets |
+| 12pt C2S cardstock | .012" | 291 | Clamp marks above ~20 sheets |
+| 14pt C2S cardstock | .014" | 250 | Clamp marks above ~20 sheets; thick, short lifts |
+| 110# uncoated cover | .0145" | 241 | Forgiving: few clamp marks above ~40 sheets |
+| 100# gloss text | .0045" | 777 | Slips/creeps under the clamp above ~250 sheets; curls |
+| 60# opaque text | .0045" | 777 | Curls; slips only on very tall lifts |
 
-Numbers are typical, not exact; tune in playtest.
+**The lift trade-off** (Jude: "cut as many sheets as possible without causing clamp marks and slippage"):
+- The player sets **sheets per lift**. A pile taller than that is cut in several **passes**: more machine cycles, more time.
+- The tallest pass used during a job sets how many sheets get **clamp-marked or slipped**. Those sheets are spoiled.
+- Every job ships with **~5% overs**. Pick a lift the overs can absorb, or the order comes up short.
+- **Curl:** text stocks arrive curled. The first Jog press becomes **Decurl** (bending the stack against the curl, as Jude does by hand). Jogging a curled stack doesn't square it.
+- **Clamp pressure** is fixed during play (it's set during machine maintenance). Phase 3 can add it as a maintenance setting: too high gives more marks, too low gives more slipping.
+
+Numbers are first guesses; tune them in playtest.
 
 ## 4. Blade & maintenance (Phase 3)
 
@@ -54,9 +61,11 @@ Numbers are typical, not exact; tune in playtest.
 
 ## 5. Scoring
 
-- **Good** = within tolerance on every edge (Job #2417: ±1/32").
+- **Delivered** = finished positions × sheets that weren't spoiled. The order quantity must be met.
+- **Good** = within tolerance on every edge (±1/32" on shop jobs, 1/16" in the tutorial).
 - **Ruined** = a cut went more than tolerance into a piece's trim box.
-- **Grade:** S = 100% good, average error ≤ 1/64", cuts ≤ par, time ≤ par. A ≥ 95%, B ≥ 80%, C ≥ 60%, else D.
+- **Grade:** S = order met, average error ≤ 1/64", machine cycles ≤ par, time ≤ par. A = order met. B ≥ 95% of order, C ≥ 80%, else D.
+- **Par** is computed by letting the hint engine play the job at the stock's default lift, plus 2 cycles of slack.
 
 ## 6. Job #2417 par solution (20 cuts)
 

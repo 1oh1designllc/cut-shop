@@ -76,7 +76,7 @@ export function nextHint(game) {
     return s.tray.length ? { action: 'load', index: 0, why: 'The table is empty. Load the next piece from the tray.' } : null;
   }
   for (let i = 0; i < s.tray.length; i++) {
-    if (compat(s.table, s.tray[i], game.lift, game.job.maxLift).ok) {
+    if (compat(s.table, s.tray[i]).ok) {
       return { action: 'add', index: i, why: 'A strip in the tray matches this lift. Stack it on so both get cut at once.' };
     }
   }
@@ -92,4 +92,23 @@ export function nextHint(game) {
   const scrap = options.filter((o) => o.front === 'scrap').sort((a, b) => pref(a) - pref(b));
   const pick = scrap.length ? scrap[0] : options.sort((a, b) => (a.positions - b.positions) || (pref(a) - pref(b)))[0];
   return { action: 'cut', rotate: pick.rotate, gauge: pick.gauge, front: pick.front, why: why(pick, game) };
+}
+
+/** Follow hints until the job is done (used for par and by the harnesses). Returns steps taken. */
+export function autoplay(game, limit = 400) {
+  let steps = 0;
+  while (!game.state.done && steps < limit) {
+    const h = nextHint(game);
+    if (!h) break;
+    if (h.action === 'load') game.loadPiece(h.index);
+    else if (h.action === 'add') game.addToLift(h.index);
+    else {
+      if (h.rotate) game.rotate(h.rotate);
+      game.setGauge(h.gauge);
+      game.jog(); if (!game.state.jogged) game.jog(); // second press after a decurl
+      game.toggleClamp(); game.cut(); game.afterCut();
+    }
+    steps++;
+  }
+  return steps;
 }

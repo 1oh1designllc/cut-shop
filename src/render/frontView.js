@@ -9,6 +9,8 @@ export function createFrontRenderer() {
   let clampPos = 0;
   return function drawFront(view, game, t, opts) {
     const s = game.state, LIFT = game.lift, MAXLIFT = game.job.maxLift;
+    // Height of the pass actually under the clamp (a taller pile is cut in several passes).
+    const passH = (st) => Math.min(st.layers.length * LIFT, s.liftSheets * game.stock.caliper);
     const { ctx, w, h, dpr } = view;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
     const k = w / 25, vy = k * 1.45, tableY = h * 0.76, X = (x) => k * 1.5 + x * k, topH = h * 0.12;
@@ -28,21 +30,21 @@ export function createFrontRenderer() {
     // lift
     let stackTop = tableY;
     if (s.table) {
-      const n = s.table.layers.length, sw = Math.min(s.table.W, 22) * k, sh = n * LIFT * vy;
+      const n = s.table.layers.length, sw = Math.min(s.table.W, 22) * k, sh = passH(s.table) * vy;
       let jx = 0;
       if (s.anim.jogAt && !opts.reduceMotion) { const tt = (t - s.anim.jogAt) / 350; if (tt < 1) jx = Math.sin(tt * 40) * 4 * (1 - tt); }
       const x0 = X(0) + jx, y0 = tableY - sh; stackTop = y0;
       const sg = ctx.createLinearGradient(x0, 0, x0 + sw, 0); sg.addColorStop(0, '#ffffff'); sg.addColorStop(1, '#dcdad4');
       ctx.fillStyle = sg; ctx.fillRect(x0, y0, sw, sh);
       ctx.fillStyle = 'rgba(0,0,0,.05)'; for (let y = y0 + 2; y < tableY; y += 3) ctx.fillRect(x0, y, sw, 1);
-      ctx.fillStyle = 'rgba(0,0,0,.25)'; for (let i = 1; i < n; i++) ctx.fillRect(x0, y0 + i * LIFT * vy, sw, 1.5);
+      ctx.fillStyle = 'rgba(0,0,0,.25)'; for (let i = 1; i < n && i * LIFT * vy < sh; i++) ctx.fillRect(x0, y0 + i * LIFT * vy, sw, 1.5);
       ctx.fillRect(x0 + sw, y0 + 3, 4, sh - 3);
     }
     // front piece falling away
     if (s.anim.fall && !opts.reduceMotion) {
       const tt = (t - s.anim.fall.at) / 600;
       if (tt < 1) {
-        const st = s.anim.fall.stack, n = st.layers.length, sw = Math.min(st.W, 22) * k, sh = n * LIFT * vy;
+        const st = s.anim.fall.stack, sw = Math.min(st.W, 22) * k, sh = passH(st) * vy;
         ctx.save(); ctx.globalAlpha = 1 - tt; ctx.fillStyle = '#f4f3ef';
         ctx.fillRect(X(0) - tt * 8, tableY - sh + tt * tt * h * 0.45, sw + tt * 16, sh * (1 + tt * 1.6)); ctx.restore();
       }

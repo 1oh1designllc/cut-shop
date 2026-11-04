@@ -1,7 +1,7 @@
 # Cut Shop — Build Plan
 
 *A paper-cutting game on an industrial guillotine cutter. Stocks, sizes, blade changes.*
-*Working doc. Last updated 2026-11-03.*
+*Working doc. Last updated 2026-11-04.*
 
 ---
 
@@ -40,12 +40,13 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 - **Milestone 1:** a stranger can finish Job #2417 without being told how
 
 ### Phase 2 — Stocks & jobs
-- [ ] Stock profiles drive play (see GAME_DESIGN.md §3): caliper → lift height, slip, clamp marking
-- [ ] Clamp pressure control (light / normal / heavy)
-- [ ] Job templates: business cards, 4×6 & 5×7 postcards, 8.5×11 flyers from 12×18 and 19×25, tickets with perfs, door hangers, rack cards
-- [ ] Job generator: random template + stock + quantity + due time
-- [ ] Imposition variety: work-and-turn, mixed sizes, no-gutter (butted) layouts
-- **Milestone 2:** 10+ distinct jobs across 5+ stocks, each plays differently
+- [x] Jude's six stocks drive play (GAME_DESIGN.md §3): caliper → sheets per pass; clamp marks (C2S above ~20 sheets), slipping (gloss text), curl (text stocks → Decurl before Jog)
+- [x] Lift height is the core decision (slider + job briefing): taller = fewer machine cycles, more spoiled sheets; overs (~5%) absorb a sensible amount. Clamp pressure stays fixed (Jude: set during maintenance) → Phase 3 maintenance setting
+- [x] Job templates on 12×18 (Jude's most common work): business cards, 4×6 & 5×7 postcards, 10×7 greeting cards (scored), 8½×11 flyers, tri-fold brochures. Six fixed shop jobs #3101–#3106
+- [x] Random job generator (template + allowed stock + order qty); par worked out automatically by letting the hint engine play it
+- [ ] Imposition variety: work-and-turn, mixed sizes, no-gutter (butted) layouts → moved to the PC/Mac depth list (D7)
+- [ ] Due times / rush jobs → Phase 5 career mode
+- **Milestone 2:** 10+ distinct jobs across 5+ stocks, each plays differently ✅ (6 shop jobs + endless random jobs, 6 stocks)
 
 ### Phase 3 — Blade & maintenance
 - [ ] Blade wear per cut, weighted by stock and lift height

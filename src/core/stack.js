@@ -43,17 +43,14 @@ export const rotateStack = (st) => ({ W: st.D, D: st.W, layers: st.layers.map((m
 export const cutSegments = (st, g) => st.layers.map((m) => [...ap(m, 0, g), ...ap(m, st.W, g)]);
 
 /**
- * Can `piece` go on top of `table` as one lift?
- * @param {number} lift height of one layer in inches
- * @param {number} maxLift clamp opening in inches
+ * Can `piece` go on top of `table` as one pile? Same footprint (either way round).
+ * Height isn't limited here: a pile taller than the lift setting is simply cut
+ * in several passes (see game.js).
  */
-export function compat(table, piece, lift, maxLift) {
+export function compat(table, piece) {
   if (!table) return { ok: false, why: 'Nothing on the table to add to' };
   const same = Math.abs(table.W - piece.W) < 0.002 && Math.abs(table.D - piece.D) < 0.002;
   const swap = Math.abs(table.W - piece.D) < 0.002 && Math.abs(table.D - piece.W) < 0.002;
   if (!same && !swap) return { ok: false, why: 'Different size from the lift on the table' };
-  if ((table.layers.length + piece.layers.length) * lift > maxLift + 1e-6) {
-    return { ok: false, why: 'Too tall for the clamp' };
-  }
   return { ok: true, swap: !same };
 }

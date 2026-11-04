@@ -4,9 +4,10 @@ import { drawMini } from '../render/miniMap.js';
 import { useCanvasView } from './hooks.js';
 import { JOBS } from '../core/jobs.js';
 import { fmtTime } from './Header.jsx';
+import LiftControl from './LiftControl.jsx';
 
-export default function Ticket({ game, s, guides, onGuides, play }) {
-  const { job, stock, layout, lift, total } = game;
+export default function Ticket({ game, s, guides, onGuides, play, showLift = false }) {
+  const { job, stock, layout } = game;
   const cv = useRef(null), view = useRef(null);
   const redraw = () => { if (view.current) drawMini(view.current, game); };
   useCanvasView(cv, view, (w) => w * (job.sheet.h / job.sheet.w), redraw);
@@ -16,16 +17,16 @@ export default function Ticket({ game, s, guides, onGuides, play }) {
   const n = job.cols * job.rows;
   const best = play.bests[job.id];
   const specs = [
-    ['Item', job.title],
-    ['Stock', `${stock.name} (${stock.caliper.toFixed(3).replace(/^0/, '')}")`],
-    ['Run', `${job.sheets} press sheets`],
+    ['Item', job.title + (job.note ? ` — ${job.note}` : '')],
+    ['Stock', `${stock.name} (${stock.caliper.toFixed(4).replace(/^0/, '').replace(/0$/, '')}")`],
+    ['Order', `${game.order.toLocaleString()} ${job.unit || 'cards'}`],
+    ['Run', `${job.sheets} press sheets (${Math.max(0, job.sheets - Math.ceil(game.order / n))} overs)`],
     ['Press sheet', `${job.sheet.w} × ${job.sheet.h}"`],
     ['Finished', `${frac(job.finished.w)} × ${frac(job.finished.h)}", ${n}-up (${job.cols} × ${job.rows})`],
     ['Gutters', `${frac(job.gutter)}" (${frac(job.bleed)}" bleed each side)`],
     ['Margins', `${frac(layout.mx)}" sides · ${frac(layout.my)}" head & foot`],
     ['Tolerance', `± ${frac(job.tolerance)}"`],
-    ['Max lift', `${frac(job.maxLift)}" (${Math.floor(job.maxLift / lift + 1e-9)} lifts of ${lift.toFixed(1)}")`],
-    ['Deliver', `${total.toLocaleString()} ${job.unit || 'cards'}`],
+    ['Clamp opening', `${frac(job.maxLift)}" (${game.maxSheets} sheets)`],
   ];
 
   return (
@@ -36,10 +37,14 @@ export default function Ticket({ game, s, guides, onGuides, play }) {
           {JOBS.map((j) => (
             <option key={j.id} value={j.id}>{j.label}{play.bests[j.id] ? `  —  best ${play.bests[j.id].grade}` : ''}</option>
           ))}
+          {play.random && <option value={play.random.id}>{play.random.label}</option>}
+          <option value="random">＋ New random job…</option>
         </select>
       </div>
       <div className="jobhead"><strong>Job ticket</strong><span>#{job.id}</span></div>
       {best && <div className="bestline">Your best: <b>{best.grade}</b> · {best.good.toLocaleString()} good · {best.cuts} cuts · {fmtTime(best.ms)}</div>}
+      {stock.notes.length > 0 && <ul className="stocknotes">{stock.notes.map((x) => <li key={x}>{x}</li>)}</ul>}
+      {showLift && <LiftControl game={game} s={s} />}
       <dl className="specs">
         {specs.map(([k, v]) => [<dt key={k + 't'}>{k}</dt>, <dd key={k + 'd'}>{v}</dd>])}
       </dl>

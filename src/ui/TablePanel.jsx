@@ -21,7 +21,7 @@ export default function TablePanel({ game, s, viewRef, opts, play, fill = false 
 
   const t = s.table;
   const chip = t
-    ? `${frac(t.W)} × ${frac(t.D)}" · ${t.layers.length} lift${t.layers.length > 1 ? 's' : ''} · ${(t.layers.length * game.lift).toFixed(1)}" high`
+    ? `${frac(t.W)} × ${frac(t.D)}" · ${(t.layers.length * game.job.sheets).toLocaleString()} sheets${game.passesFor(t) > 1 ? ` · ${game.passesFor(t)} passes` : ''}`
     : s.tray.length ? 'Table empty — load a piece from the tray' : 'Table empty';
 
   const moveLoupe = (e) => {

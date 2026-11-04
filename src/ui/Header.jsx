@@ -16,7 +16,7 @@ export default function Header({ game, s, sound, onSound }) {
       <div className="stats">
         <div className="stat"><b>{fmtTime(ms)}</b><span>Time</span></div>
         <div className="stat"><b>{s.cuts}</b><span>Cuts</span></div>
-        <div className="stat"><b>{(s.goodLayers * game.job.sheets).toLocaleString()}</b><span>Good {game.job.unit || 'cards'}</span></div>
+        <div className="stat"><b>{game.delivered().toLocaleString()}</b><span>Good {game.job.unit || 'cards'}</span></div>
         <button className="btn small" type="button" aria-pressed={sound} onClick={onSound}>{sound ? 'Sound on' : 'Sound off'}</button>
         <button className="btn small" type="button" onClick={() => game.restart()}>Restart job</button>
       </div>

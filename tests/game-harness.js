@@ -90,7 +90,10 @@ console.log('\nRules');
   cycle(g, 7.5); cycle(g, 7.25); cycle(g, 3.75); cycle(g, 3.5);
   g.addToLift(0); g.addToLift(0);
   g.state.tray.push({ ...g.state.table, layers: [g.state.table.layers[0]] }); // a 4th same-size strip
-  check('a 4th lift is refused (4.4" > 3.5")', g.addToLift(0) === false && g.state.table.layers.length === 3);
+  check('a 4th strip stacks on (400 sheets)', g.addToLift(0) === true && g.state.table.layers.length === 4);
+  g.rotate(1); g.setGauge(13.5); g.jog(); g.toggleClamp();
+  const r = g.cut(); g.afterCut();
+  check('…and each cut then takes 2 passes (max 318 sheets of .011")', r.passes === 2, String(r.passes));
 }
 
 console.log(`\n${pass} passed, ${fail} failed`);

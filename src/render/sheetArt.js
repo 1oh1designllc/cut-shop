@@ -5,22 +5,31 @@
  */
 import { inv } from '../core/geometry.js';
 
-const INK = { block: '#1d6e78', stripe: '#164f57', logo: '#f2c230', text: '#e9f1ef', textDim: 'rgba(233,241,239,.55)' };
+const INK = { block: '#1d6e78', logo: '#f2c230', text: '#e9f1ef', textDim: 'rgba(233,241,239,.55)' };
 
 export function drawSheetArt(ctx, px, game, { guides = true } = {}) {
   const { layout, job } = game;
   const { w: CW, h: CH } = job.finished;
   const lw = 1 / px;
   const pb = layout.printBlock;
-  ctx.fillStyle = INK.block;
+  // Placeholder artwork, laid out in proportion to the piece so every job type reads.
+  ctx.fillStyle = job.ink || INK.block;
   ctx.fillRect(pb.x, pb.y, pb.w, pb.h);
   for (const k of layout.cards) {
-    const x = k.x0, y = k.y0;
-    ctx.fillStyle = INK.stripe; ctx.fillRect(x + CW - 0.5, y - job.bleed, 0.22, CH + 2 * job.bleed);
-    ctx.fillStyle = INK.logo; ctx.beginPath(); ctx.arc(x + 0.45, y + 0.52, 0.24, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = INK.text; ctx.fillRect(x + 0.85, y + 0.38, 1.6, 0.15);
-    ctx.fillStyle = INK.textDim; ctx.fillRect(x + 0.85, y + 0.62, 1.0, 0.08);
-    ctx.fillRect(x + 0.3, y + 1.38, 1.55, 0.07); ctx.fillRect(x + 0.3, y + 1.56, 1.15, 0.07);
+    const x = k.x0, y = k.y0, m = Math.min(CW, CH);
+    ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(x + CW * 0.857, y - job.bleed, CW * 0.063, CH + 2 * job.bleed);
+    ctx.fillStyle = INK.logo; ctx.beginPath(); ctx.arc(x + CW * 0.13, y + CH * 0.26, m * 0.12, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = INK.text; ctx.fillRect(x + CW * 0.243, y + CH * 0.19, CW * 0.457, CH * 0.075);
+    ctx.fillStyle = INK.textDim; ctx.fillRect(x + CW * 0.243, y + CH * 0.31, CW * 0.286, CH * 0.04);
+    ctx.fillRect(x + CW * 0.086, y + CH * 0.69, CW * 0.443, CH * 0.035); ctx.fillRect(x + CW * 0.086, y + CH * 0.78, CW * 0.329, CH * 0.035);
+    // finishing marks: score line (greeting cards), fold lines (brochures)
+    if (job.art === 'greeting' || job.art === 'brochure') {
+      ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 1.2 * lw; ctx.setLineDash([2 * lw, 3 * lw]);
+      ctx.beginPath();
+      if (job.art === 'greeting') { ctx.moveTo(x + CW / 2, y); ctx.lineTo(x + CW / 2, y + CH); }
+      else { for (const f of [1 / 3, 2 / 3]) { ctx.moveTo(x, y + CH * f); ctx.lineTo(x + CW, y + CH * f); } }
+      ctx.stroke(); ctx.restore();
+    }
     if (guides) {
       ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.45)'; ctx.lineWidth = lw; ctx.setLineDash([4 * lw, 3 * lw]);
       ctx.strokeRect(x, y, CW, CH); ctx.restore();
@@ -41,7 +50,7 @@ export function drawSheetArt(ctx, px, game, { guides = true } = {}) {
   if (fs >= 5) {
     ctx.save(); ctx.scale(1 / px, 1 / px); ctx.fillStyle = '#333';
     ctx.font = `500 ${fs}px "IBM Plex Sans Condensed", sans-serif`; ctx.textBaseline = 'middle';
-    const slug = `JOB ${job.id} · ${job.title.toUpperCase()} · ${job.cols * job.rows}-UP · ${game.stock.name.toUpperCase()} · SHEET ${SW}×${SH}`;
+    const slug = `JOB ${job.id} · ${job.title.toUpperCase()} · ${job.cols * job.rows}-UP · ${game.stock.name.toUpperCase()} · ${SW}×${SH}`;
     ctx.fillText(slug, 0.3 * px, 0.3 * px);
     ctx.restore();
   }

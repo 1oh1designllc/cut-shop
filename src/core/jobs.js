@@ -1,3 +1,5 @@
+import { makeJob } from './jobgen.js';
+
 /**
  * jobs.js — job tickets, held as data.
  * ------------------------------------------------------------------
@@ -45,4 +47,11 @@ export const JOBS = [
     startGauge: 17.5,
     par: { cuts: 22, timeMs: 6 * 60 * 1000 },
   },
+  // Phase 2: the shop's everyday work on 12×18, on real stocks. Par is worked out automatically.
+  makeJob('postcards-4x6', 'c2s-14', 1000, 3101),
+  makeJob('postcards-5x7', 'c2s-12', 500, 3102),
+  makeJob('greeting-cards', 'uncoated-110', 250, 3103),
+  makeJob('flyers', 'opaque-60', 1000, 3104),
+  makeJob('brochures', 'gloss-text-100', 1000, 3105),
+  makeJob('business-cards', 'c2s-14', 2500, 3106),
 ];

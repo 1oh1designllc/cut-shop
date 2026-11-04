@@ -181,3 +181,19 @@ ol.how b{font-weight:600}
 .prevbest{font-size:13px;color:var(--muted);margin-bottom:8px}
 .rbtns{display:grid;gap:8px}
 .btn.primary{background:var(--safety);color:var(--ink);border-color:var(--safety)}
+
+/* ---------- phase 2: briefing, lift control, stock notes ---------- */
+.modal{position:fixed;inset:0;background:rgba(10,11,12,.78);display:flex;align-items:center;justify-content:center;padding:max(16px,env(safe-area-inset-left,0px));z-index:20;overflow:auto}
+.modal .rcard{max-height:100%;overflow:auto}
+.brief-title{font-family:var(--f-display);font-weight:600;font-size:20px;letter-spacing:.04em;color:var(--safety);margin-top:-8px}
+.brief-tip{margin:0;font-size:13px;color:var(--muted)}
+.stocknotes{margin:0;padding-left:18px;font-size:13px;display:grid;gap:2px}
+.stocknotes li::marker{color:var(--safety)}
+.liftctl{display:grid;gap:6px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:8px 10px}
+.liftrow{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.liftrow label{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.liftrow b{font-family:var(--f-mono);font-weight:400;font-size:18px}
+.liftrow span{font-family:var(--f-mono);font-size:13px;color:var(--muted)}
+#liftRange{width:100%;accent-color:var(--safety);touch-action:none}
+.liftnotes{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--muted)}
+.liftnotes .ok{color:var(--ok)} .liftnotes .warn{color:var(--safety)} .liftnotes .bad{color:var(--bad)}

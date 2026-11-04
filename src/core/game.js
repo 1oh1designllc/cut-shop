@@ -16,7 +16,8 @@ import { r3, clamp, frac } from './geometry.js';
 import { createStack, cutStack, rotateStack, sheetRect, compat, cutSegments } from './stack.js';
 import { buildLayout } from './layout.js';
 import { classify } from './classify.js';
-import { STOCKS } from './stocks.js';
+import { STOCKS, spoilFraction } from './stocks.js';
+import { autoplay } from './hint.js';
 import { summarize } from './scoring.js';
 
 export const GAUGE_MIN = 0.5;
@@ -27,6 +28,7 @@ export const GAUGE_MAX = 19.5;
  * @param {{ rng?: () => number, now?: () => number }} [opts] injectable for tests
  */
 export function createGame(job, opts = {}) {
+  if (!job.par) job.par = computePar(job);
   const rng = opts.rng || Math.random;
   const now = opts.now || (() => (typeof performance !== 'undefined' ? performance.now() : Date.now()));
   const stock = STOCKS[job.stock];
@@ -34,6 +36,10 @@ export function createGame(job, opts = {}) {
   const lift = job.sheets * stock.caliper;
   const total = layout.cards.length * job.sheets;
   const unit = job.unit || 'cards';
+  const order = job.order ?? total;
+  /** Most sheets the clamp opening takes in one pass. */
+  const maxSheets = Math.floor(job.maxLift / stock.caliper + 1e-9);
+  const initialLift = Math.min(maxSheets, job.defaultLift ?? stock.defaultLift ?? maxSheets);
   const listeners = new Set();
   let evtId = 0;
   let s, snap;
@@ -44,6 +50,7 @@ export function createGame(job, opts = {}) {
       table: createStack(job.sheet.w, job.sheet.h), tray: [],
       goodLayers: 0, errs: [], goodRects: [], scrapLayers: 0, ruined: new Set(),
       cuts: 0, cutLines: [], t0: 0, tEnd: 0,
+      liftSheets: initialLift, curled: !!stock.curl, maxPass: 0, extraMs: 0, ops: 0,
       anim: { jogAt: 0, cutAt: 0, fall: null },
       event: null,
     };
@@ -52,6 +59,9 @@ export function createGame(job, opts = {}) {
   const say = (msg, kind = '') => { s.event = { id: ++evtId, msg, kind }; };
   const startClock = () => { if (!s.t0) s.t0 = now(); };
   const blocked = () => s.busy || s.done;
+  const spoiled = () => Math.round(job.sheets * spoilFraction(stock, s.maxPass));
+  const delivered = () => s.goodLayers * (job.sheets - spoiled());
+  const passesFor = (st) => (st ? Math.ceil((st.layers.length * job.sheets) / s.liftSheets) : 0);
 
   function sortStack(st) {
     const keep = [];
@@ -74,7 +84,8 @@ export function createGame(job, opts = {}) {
   snap = { ...s };
 
   const game = {
-    job, stock, layout, lift, total,
+    job, stock, layout, lift, total, order, maxSheets,
+    spoiled, delivered, passesFor,
     get state() { return s; },
     getSnapshot: () => snap,
     subscribe(fn) { listeners.add(fn); return () => listeners.delete(fn); },
@@ -99,7 +110,23 @@ export function createGame(job, opts = {}) {
     jog() {
       if (blocked() || !s.table) return false;
       if (s.clampDown) { say('Release the clamp to jog the lift.', 'warn'); commit(); return false; }
+      if (s.curled) {
+        s.curled = false; s.anim.jogAt = now(); startClock();
+        say('You bend the stack against the curl until it lies flat. Now jog it.');
+        commit();
+        return true;
+      }
       s.jogged = true; s.anim.jogAt = now(); startClock(); commit();
+      return true;
+    },
+
+    /** Sheets per pass under the clamp. Set between cuts, not while clamped. */
+    setLift(sheets) {
+      if (blocked()) return false;
+      if (s.clampDown) { say('Release the clamp before changing the lift.', 'warn'); commit(); return false; }
+      const nv = clamp(Math.round(sheets), 5, maxSheets);
+      if (nv === s.liftSheets) return false;
+      s.liftSheets = nv; commit();
       return true;
     },
 
@@ -126,13 +153,23 @@ export function createGame(job, opts = {}) {
       let err = 0;
       if (!s.jogged) err = (rng() < 0.5 ? -1 : 1) * (0.03 + rng() * 0.045);
       const g = r3(s.gauge + err);
-      s.cuts++;
       const pieces = cutStack(st, g);
       if (!pieces) {
+        s.cuts++;
         say('Air cut. The lift sits behind the blade — bring the gauge forward.', 'warn');
         commit();
         return { air: true };
       }
+      // A pile taller than the lift setting takes several passes; tall passes spoil sheets.
+      const pileSheets = st.layers.length * job.sheets;
+      const passes = Math.ceil(pileSheets / s.liftSheets);
+      const passSheets = Math.min(s.liftSheets, pileSheets);
+      s.cuts += passes;
+      s.ops++;
+      s.extraMs += (passes - 1) * 5000;
+      const spoiledBefore = spoiled();
+      s.maxPass = Math.max(s.maxPass, passSheets);
+      const spoiledNow = spoiled();
       s.cutLines.push(...cutSegments(st, g));
       s.anim.fall = { stack: pieces.front, at: now() };
       const rb = sortStack(pieces.back), rf = sortStack(pieces.front);
@@ -146,10 +183,16 @@ export function createGame(job, opts = {}) {
       const errs = rb.errs.concat(rf.errs);
       const parts = [];
       let kind = '';
-      if (err) { parts.push(`Lift wasn't jogged, so the cut wandered ${frac(Math.abs(err))}".`); kind = 'warn'; }
+      if (passes > 1) parts.push(`${passes} passes.`);
+      if (err) { parts.push(`Lift wasn't ${s.curled ? 'decurled' : 'jogged'}, so the cut wandered ${frac(Math.abs(err))}".`); kind = 'warn'; }
+      if (spoiledNow > spoiledBefore) {
+        const what = stock.slip && passSheets > stock.slipFrom ? 'clamp-marked or crept' : 'clamp-marked';
+        parts.push(`${passSheets}-sheet lift: ~${spoiledNow} sheets now ${what}.`);
+        kind = kind || 'warn';
+      }
       if (good) {
         const e = Math.max(...errs);
-        parts.push(`+${(good * job.sheets).toLocaleString()} ${unit}${e <= 1 / 128 ? ', dead on' : `, ${frac(e)}" off`}.`);
+        parts.push(`+${(good * (job.sheets - spoiledNow)).toLocaleString()} ${unit}${e <= 1 / 128 ? ', dead on' : `, ${frac(e)}" off`}.`);
         kind = kind || 'good';
       }
       if (ruined) { parts.push(`${(ruined * job.sheets).toLocaleString()} ${unit} ruined — the blade went through artwork.`); kind = 'bad'; }
@@ -157,7 +200,7 @@ export function createGame(job, opts = {}) {
       if (!good && !ruined && !scrap) parts.push('Clean cut. Pieces with work left are on the table and tray.');
       say(parts.join(' '), kind);
       commit();
-      return { air: false, good, scrap, ruined, err };
+      return { air: false, good, scrap, ruined, err, passes };
     },
 
     afterCut() {
@@ -166,7 +209,7 @@ export function createGame(job, opts = {}) {
       commit();
     },
 
-    compat(i) { return compat(s.table, s.tray[i], lift, job.maxLift); },
+    compat(i) { return compat(s.table, s.tray[i]); },
 
     loadPiece(i) {
       if (blocked() || !s.tray[i]) return false;
@@ -178,13 +221,14 @@ export function createGame(job, opts = {}) {
 
     addToLift(i) {
       if (blocked() || !s.tray[i]) return false;
-      const c = compat(s.table, s.tray[i], lift, job.maxLift);
+      const c = compat(s.table, s.tray[i]);
       if (!c.ok) { say(c.why + '.', 'warn'); commit(); return false; }
       let p = s.tray.splice(i, 1)[0];
       if (c.swap) p = rotateStack(p);
       s.table = { ...s.table, layers: [...s.table.layers, ...p.layers] };
       s.clampDown = false; s.jogged = false; startClock();
-      say(`Lift is now ${s.table.layers.length} high (${(s.table.layers.length * lift).toFixed(1)}"). Jog it before cutting.`);
+      const n = s.table.layers.length, np = passesFor(s.table);
+      say(`Pile is now ${n} strips (${(n * job.sheets).toLocaleString()} sheets)${np > 1 ? `, ${np} passes per cut at your lift` : ''}. Jog it before cutting.`);
       commit();
       return true;
     },
@@ -192,7 +236,7 @@ export function createGame(job, opts = {}) {
     /** Show a message from the UI layer (e.g. a bad typed measurement). */
     notify(msg, kind = '') { say(msg, kind); commit(); },
 
-    summary() { return summarize(s, job, total); },
+    summary() { return summarize({ s, job, order, delivered: delivered(), spoiled: spoiled() }); },
 
     restart() {
       s = fresh();
@@ -201,4 +245,13 @@ export function createGame(job, opts = {}) {
     },
   };
   return game;
+}
+
+/** Par: let the hint engine play the job at the stock's default lift, plus a little slack. */
+export function computePar(job) {
+  const sim = createGame({ ...job, par: { cuts: 0, timeMs: 0 } }, { rng: () => 0.5, now: () => 0 });
+  autoplay(sim);
+  const { cuts, ops } = sim.state;
+  // ~12 s per cut cycle a person performs, ~5 s for each extra machine pass.
+  return { cuts: cuts + 2, timeMs: 60000 + ops * 12000 + (cuts - ops) * 5000 };
 }

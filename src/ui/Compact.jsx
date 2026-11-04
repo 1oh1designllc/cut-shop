@@ -39,7 +39,7 @@ export default function Compact({ game, s, tableView, frontView, opts, play, gui
         <div className="ministats" aria-label="Time, cuts, good cards">
           <span><b>{fmtTime(ms)}</b></span>
           <span><b>{s.cuts}</b> cuts</span>
-          <span><b>{(s.goodLayers * game.job.sheets).toLocaleString()}</b> good</span>
+          <span><b>{game.delivered().toLocaleString()}</b> good</span>
         </div>
         <div className="headbtns">
           <button className={'btn small' + (trayNeedsYou ? ' attn' : '')} type="button" onClick={() => setSheet('tray')}>
@@ -59,7 +59,7 @@ export default function Compact({ game, s, tableView, frontView, opts, play, gui
       )}
       {sheet === 'ticket' && (
         <Sheet title="Job ticket" onClose={() => setSheet(null)}>
-          <Ticket key={game.job.id} game={game} s={s} guides={guides} onGuides={onGuides} play={play} />
+          <Ticket key={game.job.id} game={game} s={s} guides={guides} onGuides={onGuides} play={play} showLift />
           <div className="sheetbtns">
             <button className="btn small" type="button" aria-pressed={sound} onClick={onSound}>{sound ? 'Sound on' : 'Sound off'}</button>
             <button className="btn small" type="button" onClick={() => { game.restart(); setSheet(null); }}>Restart job</button>
@@ -106,7 +106,7 @@ function Deck({ game, s }) {
       <div className="deckrow">
         <CutButton side="L" props={left} />
         <div className="actions">
-          <button className="btn" type="button" onClick={() => doJog(game)}>Jog</button>
+          <button className={'btn' + (s.curled ? ' attn' : '')} type="button" onClick={() => doJog(game)}>{s.curled ? 'Decurl' : 'Jog'}</button>
           <button className={'btn' + (s.clampDown ? ' on' : '')} type="button" onClick={() => doClamp(game)}>{s.clampDown ? 'Release' : 'Clamp'}</button>
           <button className="btn" type="button" onClick={() => game.rotate(1)}>Rotate</button>
           <button className="btn" type="button" onClick={() => game.rotate(2)}>Turn</button>

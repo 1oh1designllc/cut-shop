@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { createGame } from '../core/game.js';
 import { JOBS } from '../core/jobs.js';
+import { randomJob } from '../core/jobgen.js';
 import { nextHint } from '../core/hint.js';
 import { sfx } from '../audio/sfx.js';
 import { drawTable } from '../render/tableView.js';
@@ -15,6 +16,7 @@ import MachinePanel from './MachinePanel.jsx';
 import Tray from './Tray.jsx';
 import Ticket from './Ticket.jsx';
 import Results from './Results.jsx';
+import Briefing from './Briefing.jsx';
 
 const reduceMotion = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -27,7 +29,8 @@ function initialJob() {
 
 export default function App() {
   const [jobId, setJobId] = useState(initialJob);
-  const job = JOBS.find((j) => j.id === jobId) || JOBS[0];
+  const [random, setRandom] = useState(null); // the current random job, if any
+  const job = (random && random.id === jobId ? random : JOBS.find((j) => j.id === jobId)) || JOBS[0];
   const game = useMemo(() => createGame(job), [job]);
   const s = useSnapshot(game);
   const [guides, setGuides] = useState(true);
@@ -47,14 +50,24 @@ export default function App() {
   opts.current.fit = compact;
   opts.current.hint = hint;
 
-  const chooseJob = (id) => { saveLastJob(id); setResult(null); setJobId(id); };
-  const nextJob = JOBS[JOBS.findIndex((j) => j.id === job.id) + 1];
+  const chooseJob = (id) => {
+    setResult(null);
+    if (id === 'random') { const r = randomJob(); setRandom(r); setJobId(r.id); return; }
+    if (!(random && random.id === id)) saveLastJob(id);
+    setJobId(id);
+  };
+  // New jobs open with a briefing (stock notes + lift decision); the tutorial has its coach instead.
+  const [briefed, setBriefed] = useState(null);
+  const showBriefing = !job.coach && briefed !== game && !s.t0 && !s.done;
+  const idx = JOBS.findIndex((j) => j.id === job.id);
+  const nextJob = idx >= 0 && idx < JOBS.length - 1 ? JOBS[idx + 1] : { id: 'random', label: 'New random job' };
 
   useEffect(() => { sfx.on = sound; }, [sound]);
 
   // Record the best score once, when a run finishes.
   useEffect(() => {
     if (!s.done) { setResult(null); return; }
+    if (job.random) { setResult(null); return; }
     const r = saveBest(job.id, game.summary());
     setResult(r);
     setBests(loadBests());
@@ -79,7 +92,8 @@ export default function App() {
     return () => cancelAnimationFrame(raf);
   }, [game]);
 
-  const play = { hint, coachMode, showHint, setShowHint, jobId: job.id, chooseJob, bests };
+  const play = { hint, coachMode, showHint, setShowHint, jobId: job.id, chooseJob, bests, random };
+  const briefing = showBriefing && <Briefing game={game} s={s} onStart={() => setBriefed(game)} />;
   const results = s.done && (
     <Results game={game} result={result} onNext={nextJob ? () => chooseJob(nextJob.id) : null} nextLabel={nextJob?.label} />
   );
@@ -92,6 +106,7 @@ export default function App() {
           guides={guides} onGuides={setGuides} sound={sound} onSound={() => setSound((v) => !v)}
         />
         {results}
+        {briefing}
       </div>
     );
   }
@@ -104,6 +119,7 @@ export default function App() {
       <Tray game={game} s={s} guides={guides} />
       <Ticket key={job.id} game={game} s={s} guides={guides} onGuides={setGuides} play={play} />
       {results}
+      {briefing}
     </div>
   );
 }

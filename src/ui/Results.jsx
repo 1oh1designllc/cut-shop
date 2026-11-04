@@ -9,17 +9,18 @@ export default function Results({ game, result, onNext, nextLabel }) {
   const btn = useRef(null);
   useEffect(() => { btn.current?.focus(); }, []);
   const rows = [
-    [`Good ${unit}`, `${r.good.toLocaleString()} / ${r.total.toLocaleString()}`],
-    [`Ruined ${unit}`, r.ruined.toLocaleString()],
+    [`Delivered ${unit}`, `${r.delivered.toLocaleString()} / ${r.order.toLocaleString()} ordered`],
+    ['Spoiled sheets (marks / slips)', r.spoiledSheets.toLocaleString()],
+    [`Ruined by the blade`, r.ruined.toLocaleString()],
     ['Average accuracy', r.hasErr ? `${frac(r.avgErr)}" off` : '—'],
-    [`Cuts (par ${job.par.cuts})`, r.cuts],
+    [`Machine cycles (par ${job.par.cuts})`, r.cuts],
     [`Time (par ${fmtTime(job.par.timeMs)})`, fmtTime(r.ms)],
   ];
   const best = result?.best;
   return (
     <div id="results">
       <div className="rcard" role="dialog" aria-labelledby="rTitle">
-        <h3 id="rTitle">{job.coach ? 'Tutorial' : `Job #${job.id}`} {r.good >= r.total ? 'complete' : 'finished short'}</h3>
+        <h3 id="rTitle">{job.coach ? 'Tutorial' : `Job #${job.id}`} {r.delivered >= r.order ? 'complete' : 'came up short'}</h3>
         <div className="gradeRow">
           <div className="grade">{r.grade}</div>
           {result?.isNew && <div className="newbest">New best!</div>}
