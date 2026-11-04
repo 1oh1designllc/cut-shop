@@ -46,6 +46,8 @@ Jude's everyday stocks, all on 12×18. The clamp opening is 3½", so caliper set
 
 Numbers are first guesses; tune them in playtest.
 
+**Layouts (Jude, 2026-11-04):** every job has a double trim (¼" gutter = two ⅛" bleeds). Business cards run **24-up (3 × 8)** on 12×18, so the bleed reaches the head and foot of the sheet. 4×6 and 5×7 postcards run **4-up**. The occasional **5-up 4×6** (mixed orientation) is saved for the PC/Mac edition.
+
 ## 4. Blade & maintenance (Phase 3)
 
 - **Wear** accrues per cut: `lift height × stock.wear`. Shown as a meter.

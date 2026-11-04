@@ -42,7 +42,7 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 ### Phase 2 — Stocks & jobs
 - [x] Jude's six stocks drive play (GAME_DESIGN.md §3): caliper → sheets per pass; clamp marks (C2S above ~20 sheets), slipping (gloss text), curl (text stocks → Decurl before Jog)
 - [x] Lift height is the core decision (slider + job briefing): taller = fewer machine cycles, more spoiled sheets; overs (~5%) absorb a sensible amount. Clamp pressure stays fixed (Jude: set during maintenance) → Phase 3 maintenance setting
-- [x] Job templates on 12×18 (Jude's most common work): business cards, 4×6 & 5×7 postcards, 10×7 greeting cards (scored), 8½×11 flyers, tri-fold brochures. Six fixed shop jobs #3101–#3106
+- [x] Job templates on 12×18 (Jude's most common work): business cards (24-up, 3 × 8), 4×6 & 5×7 postcards (4-up), 10×7 greeting cards (scored), 8½×11 flyers, tri-fold brochures. Six fixed shop jobs #3101–#3106
 - [x] Random job generator (template + allowed stock + order qty); par worked out automatically by letting the hint engine play it
 - [ ] Imposition variety: work-and-turn, mixed sizes, no-gutter (butted) layouts → moved to the PC/Mac depth list (D7)
 - [ ] Due times / rush jobs → Phase 5 career mode
@@ -82,7 +82,7 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 |---|---|---|---|
 | D1 | Game name | *Cut Shop* (working title) / other | open |
 | D2 | Platforms | **Direction set 2026-11-03:** two editions on one shared engine: a **PC/Mac edition** (deeper, packaged as a desktop app for Steam/itch) and a **phone edition** (streamlined). Packaging tool (Electron vs Tauri) and phone store wrapper (Capacitor) still to pick, at Phase 5 | direction set |
-| D7 | Desktop-only depth | Candidates: cut-program editor on a programmable cutter, full imposition/cut-sheet planning, more machines, longer career, detailed blade change | open |
+| D7 | Desktop-only depth | Candidates: cut-program editor on a programmable cutter, full imposition/cut-sheet planning (incl. 5-up 4×6 with mixed orientation), more machines, longer career, detailed blade change | open |
 | D3 | Realism level | Sim (every real step) · Arcade (auto-jog, faster) · Both with a toggle | open, decide in Phase 1 playtest |
 | D4 | Typed gauge entry | Free from the start · Unlocked as the "programmable gauge" upgrade | open, prototype has it free |
 | D5 | Monetisation | Free web · Paid · Free + cosmetic | open |

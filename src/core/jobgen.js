@@ -9,7 +9,8 @@
 export const TEMPLATES = {
   'business-cards': {
     title: 'Business cards', unit: 'cards', art: 'card', ink: '#1d6e78',
-    sheet: { w: 12, h: 18 }, finished: { w: 3.5, h: 2 }, cols: 3, rows: 7,
+    // Jude's standard: 24-up (3 × 8), double trim, bleeds run almost to the sheet edge.
+    sheet: { w: 12, h: 18 }, finished: { w: 3.5, h: 2 }, cols: 3, rows: 8,
     stocks: ['c2s-14', 'c2s-12', 'uncoated-110'], orders: [1000, 2500, 5000],
   },
   'postcards-4x6': {
