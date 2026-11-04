@@ -33,6 +33,7 @@ export function createGame(job, opts = {}) {
   const layout = buildLayout(job);
   const lift = job.sheets * stock.caliper;
   const total = layout.cards.length * job.sheets;
+  const unit = job.unit || 'cards';
   const listeners = new Set();
   let evtId = 0;
   let s, snap;
@@ -68,7 +69,8 @@ export function createGame(job, opts = {}) {
   }
 
   s = fresh();
-  say(`Job #${job.id} is on the table. Start by trimming the foot margin: set the gauge, jog, clamp, cut.`);
+  const intro = () => job.intro || `Job #${job.id} is on the table. Start by trimming the foot margin: set the gauge, jog, clamp, cut.`;
+  say(intro());
   snap = { ...s };
 
   const game = {
@@ -147,10 +149,10 @@ export function createGame(job, opts = {}) {
       if (err) { parts.push(`Lift wasn't jogged, so the cut wandered ${frac(Math.abs(err))}".`); kind = 'warn'; }
       if (good) {
         const e = Math.max(...errs);
-        parts.push(`+${(good * job.sheets).toLocaleString()} cards${e <= 1 / 128 ? ', dead on' : `, ${frac(e)}" off`}.`);
+        parts.push(`+${(good * job.sheets).toLocaleString()} ${unit}${e <= 1 / 128 ? ', dead on' : `, ${frac(e)}" off`}.`);
         kind = kind || 'good';
       }
-      if (ruined) { parts.push(`${(ruined * job.sheets).toLocaleString()} cards ruined — the blade went through artwork.`); kind = 'bad'; }
+      if (ruined) { parts.push(`${(ruined * job.sheets).toLocaleString()} ${unit} ruined — the blade went through artwork.`); kind = 'bad'; }
       if (!good && !ruined && scrap) parts.push('Trim strip dropped.');
       if (!good && !ruined && !scrap) parts.push('Clean cut. Pieces with work left are on the table and tray.');
       say(parts.join(' '), kind);
@@ -194,7 +196,7 @@ export function createGame(job, opts = {}) {
 
     restart() {
       s = fresh();
-      say('New run. Set the gauge to trim the foot margin first.');
+      say('New run. ' + intro());
       commit();
     },
   };

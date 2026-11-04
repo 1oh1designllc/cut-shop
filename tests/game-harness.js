@@ -17,7 +17,7 @@ const check = (name, cond, detail = '') => {
 
 function makeGame() {
   let t = 0;
-  return createGame(JOBS[0], { rng: () => 0.5, now: () => (t += 1000) });
+  return createGame(JOBS.find((j) => j.id === '2417'), { rng: () => 0.5, now: () => (t += 1000) });
 }
 /** One full operator cycle: set gauge → jog → clamp → cut → release. */
 function cycle(g, gauge, { jog = true } = {}) {

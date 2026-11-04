@@ -25,8 +25,15 @@ export function requestCut(game) {
 
 export function bindKeyboard(game) {
   const down = (e) => {
-    if (e.target.tagName === 'INPUT') return;
     const k = e.key.toLowerCase();
+    const tag = e.target.tagName;
+    if (tag === 'INPUT' || tag === 'SELECT') {
+      // The gauge box only takes numbers, so machine keys still work from it:
+      // type 9 1/8, then press Q to jog. Leaving the box commits the number first.
+      if (!(e.target.id === 'gaugeInput' && ['q', 'w', 'r', 't', 'f', 'j'].includes(k))) return;
+      e.preventDefault();
+      e.target.blur();
+    }
     if (k === 'f' || k === 'j') { keys[k] = true; return; }
     const repeatable = ['arrowup', 'arrowdown', 'pageup', 'pagedown'].includes(k);
     if (e.repeat && !repeatable) return;

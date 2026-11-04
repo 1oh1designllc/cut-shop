@@ -6,7 +6,7 @@ import { classify } from '../src/core/classify.js';
 import { buildLayout } from '../src/core/layout.js';
 import { JOBS } from '../src/core/jobs.js';
 
-const job = JOBS[0];
+const job = JOBS.find((j) => j.id === '2417');
 const L = buildLayout(job);
 const TOL = job.tolerance;
 let pass = 0, fail = 0;

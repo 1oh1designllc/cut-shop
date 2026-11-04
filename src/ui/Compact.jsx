@@ -11,7 +11,7 @@ import Ticket from './Ticket.jsx';
 import { MachineView, Gauge, Nudges, CutButton, useTwoHand } from './MachinePanel.jsx';
 import { doJog, doClamp } from './control.js';
 
-export default function Compact({ game, s, tableView, frontView, opts, guides, onGuides, sound, onSound }) {
+export default function Compact({ game, s, tableView, frontView, opts, play, guides, onGuides, sound, onSound }) {
   const [sheet, setSheet] = useState(null); // 'tray' | 'ticket' | null
   const [, tick] = useState(0);
   useEffect(() => { const id = setInterval(() => tick((n) => n + 1), 250); return () => clearInterval(id); }, []);
@@ -49,7 +49,7 @@ export default function Compact({ game, s, tableView, frontView, opts, guides, o
         </div>
       </header>
 
-      <Stage game={game} s={s} tableView={tableView} frontView={frontView} opts={opts} />
+      <Stage game={game} s={s} tableView={tableView} frontView={frontView} opts={opts} play={play} />
       <Deck game={game} s={s} />
 
       {sheet === 'tray' && (
@@ -59,7 +59,7 @@ export default function Compact({ game, s, tableView, frontView, opts, guides, o
       )}
       {sheet === 'ticket' && (
         <Sheet title="Job ticket" onClose={() => setSheet(null)}>
-          <Ticket game={game} s={s} guides={guides} onGuides={onGuides} />
+          <Ticket key={game.job.id} game={game} s={s} guides={guides} onGuides={onGuides} play={play} />
           <div className="sheetbtns">
             <button className="btn small" type="button" aria-pressed={sound} onClick={onSound}>{sound ? 'Sound on' : 'Sound off'}</button>
             <button className="btn small" type="button" onClick={() => { game.restart(); setSheet(null); }}>Restart job</button>
@@ -70,7 +70,7 @@ export default function Compact({ game, s, tableView, frontView, opts, guides, o
   );
 }
 
-function Stage({ game, s, tableView, frontView, opts }) {
+function Stage({ game, s, tableView, frontView, opts, play }) {
   const [view, setView] = useState('table');
   const [cutting, setCutting] = useState(false);
   useEffect(() => {
@@ -87,7 +87,7 @@ function Stage({ game, s, tableView, frontView, opts }) {
       </div>
       <div className="stagebody">
         <div className="stageview" hidden={show !== 'table'}>
-          <TablePanel game={game} s={s} viewRef={tableView} opts={opts} fill />
+          <TablePanel game={game} s={s} viewRef={tableView} opts={opts} play={play} fill />
         </div>
         <div className="stageview machineview" hidden={show !== 'machine'}>
           <MachineView viewRef={frontView} />

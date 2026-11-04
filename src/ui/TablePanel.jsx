@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { clamp, frac } from '../core/geometry.js';
 import { useCanvasView } from './hooks.js';
+import Coach from './Coach.jsx';
 
 const tableHeight = (w) => Math.min(w * 1.3, Math.max(460, window.innerHeight * 0.84));
 
 const fillParent = (w, cv) => cv.parentElement.clientHeight;
 
-export default function TablePanel({ game, s, viewRef, opts, fill = false }) {
+export default function TablePanel({ game, s, viewRef, opts, play, fill = false }) {
   const cv = useRef(null);
   useCanvasView(cv, viewRef, fill ? fillParent : tableHeight);
 
@@ -31,7 +32,7 @@ export default function TablePanel({ game, s, viewRef, opts, fill = false }) {
 
   return (
     <section className="panel tablepanel" aria-label="Cutting table, top view">
-      <div className="tablewrap">
+      <div className={'tablewrap' + (play?.hint ? ' coaching' : '')}>
         <canvas ref={cv} id="tableCv" onPointerDown={moveLoupe} />
         <div className="hud">
           <div className="chip">{chip}</div>
@@ -39,6 +40,7 @@ export default function TablePanel({ game, s, viewRef, opts, fill = false }) {
             <span className={'light ' + (t ? (s.jogged ? 'on' : 'warn') : '')}>{t && !s.jogged ? 'NOT JOGGED' : 'JOGGED'}</span>
             <span className={'light ' + (s.clampDown ? 'on' : '')}>{s.clampDown ? 'CLAMPED' : 'CLAMP UP'}</span>
           </div>
+          <Coach hint={play?.hint} s={s} mode={play?.coachMode} />
         </div>
         <div id="toast" role="status" aria-live="polite" className={(toast?.show ? 'show ' : '') + (toast?.kind || '')}>{toast?.msg}</div>
         <div className="loupe-label">Loupe · tap table to move</div>

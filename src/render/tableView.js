@@ -36,6 +36,16 @@ function drawScene(ctx, V, px, t, game, opts, loupe) {
     if (tt < 1) drawStack(ctx, s.anim.fall.stack, mul(V, [1, 0, 0, 1, 0, tt * tt * 5]), px, game, opts, 1 - tt);
   }
   ctx.setTransform(...V);
+  // next-cut hint: where the cut should land on the lift as it sits now
+  const h = opts.hint;
+  if (h && h.action === 'cut' && !h.rotate && s.table) {
+    const y = h.gauge - g, on = Math.abs(y) < 0.0005;
+    ctx.save();
+    ctx.strokeStyle = on ? 'rgba(95,208,138,.95)' : 'rgba(79,209,255,.95)';
+    ctx.lineWidth = (loupe ? 1.5 : 2) * lw; ctx.setLineDash([6 * lw, 4 * lw]);
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(s.table.W, y); ctx.stroke();
+    ctx.restore();
+  }
   // clamp footprint
   ctx.fillStyle = s.clampDown || s.busy ? 'rgba(17,18,20,.45)' : 'rgba(17,18,20,.14)';
   ctx.fillRect(-0.5, -1.3, 21.5, 1.15);

@@ -1,7 +1,7 @@
 # Cut Shop — Build Plan
 
 *A paper-cutting game on an industrial guillotine cutter. Stocks, sizes, blade changes.*
-*Working doc. Last updated 2026-10-31.*
+*Working doc. Last updated 2026-11-03.*
 
 ---
 
@@ -32,10 +32,10 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 ### Phase 1 — Core loop polish
 - [x] Playtest Job #2417 on phone (2026-11-03): table too small to see the cut; scrolling between view and controls kills the fun
 - [x] Phone one-screen layout: controls pinned at the bottom, table auto-zooms on the lift, Machine tab shows itself during each cut, Tray/Ticket as pull-up sheets
-- [ ] Tutorial job: 4-up postcards, one lift, guided step prompts
+- [x] Tutorial job: 4-up postcards, on-screen coach with live step checklist (rotate → gauge → jog → clamp → cut) and the reason for each cut
 - [ ] Undo last cut (practice mode only)
-- [ ] Best score per job saved on the device (localStorage)
-- [ ] Cut-plan hint: ghost line of the next sensible cut (toggle)
+- [x] Best score per job saved on the device; job picker shows best grade; "New best!" on the results screen
+- [x] Next-cut hint (toggle on the ticket): blue dashed line on the lift, turns green when the gauge is right. Hint engine is tested by letting it play every job to par
 - [ ] Second phone playtest of the new layout
 - **Milestone 1:** a stranger can finish Job #2417 without being told how
 

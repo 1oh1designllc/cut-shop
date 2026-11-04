@@ -6,7 +6,7 @@ Open **Command Prompt** or **PowerShell** in the project folder, then:
 
 ```bash
 npm install          # first time only
-npm test             # engine harnesses — must say "0 failed" three times
+npm test             # engine harnesses — every one must say "0 failed"
 npm run dev          # local dev server; open the URL it prints (http://localhost:5173/cut-shop/)
 ```
 
@@ -21,6 +21,7 @@ To test on your phone on the same Wi-Fi: `npm run dev -- --host`, then open the 
 | `geometry-harness.js` | Affine math, cut/rotate geometry, inch parsing and fraction display |
 | `classify-harness.js` | Job layout, good / wip / scrap / ruined decisions at the tolerance edges |
 | `game-harness.js` | The full 20-cut par run of Job #2417 delivers 2,100 cards with grade S, plus the rules (clamp, jog, air cut, lift height) |
+| `hint-harness.js` | The hint engine plays every job by itself within par with nothing ruined, and recovers from a sloppy cut and a ruined row |
 
 ## 3. Manual playtest checklist
 
@@ -39,6 +40,12 @@ To test on your phone on the same Wi-Fi: `npm run dev -- --host`, then open the 
 - [ ] Strips land in the tray; Load and Add to lift behave; a 4th lift is refused
 - [ ] Minimap shows cuts, table piece (yellow), tray pieces (dashed), finished (green), ruined (red)
 - [ ] Results screen appears when the last piece is sorted; Run it again resets everything
+
+### Tutorial, hint, bests
+- [ ] First visit opens the tutorial; coach steps tick off as you go
+- [ ] Finishing shows the grade, "New best!" the first time, and a Next job button
+- [ ] Job picker (Ticket) switches jobs and shows best grades
+- [ ] Next-cut hint toggle shows the dashed line and NEXT steps on Job #2417
 
 ### Layout
 - [ ] Desktop: three columns, nothing overlaps

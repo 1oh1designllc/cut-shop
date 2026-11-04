@@ -2,8 +2,10 @@ import { useEffect, useRef } from 'react';
 import { frac } from '../core/geometry.js';
 import { drawMini } from '../render/miniMap.js';
 import { useCanvasView } from './hooks.js';
+import { JOBS } from '../core/jobs.js';
+import { fmtTime } from './Header.jsx';
 
-export default function Ticket({ game, s, guides, onGuides }) {
+export default function Ticket({ game, s, guides, onGuides, play }) {
   const { job, stock, layout, lift, total } = game;
   const cv = useRef(null), view = useRef(null);
   const redraw = () => { if (view.current) drawMini(view.current, game); };
@@ -12,6 +14,7 @@ export default function Ticket({ game, s, guides, onGuides }) {
   useEffect(() => { document.fonts?.ready.then(redraw); }, []);
 
   const n = job.cols * job.rows;
+  const best = play.bests[job.id];
   const specs = [
     ['Item', job.title],
     ['Stock', `${stock.name} (${stock.caliper.toFixed(3).replace(/^0/, '')}")`],
@@ -22,12 +25,21 @@ export default function Ticket({ game, s, guides, onGuides }) {
     ['Margins', `${frac(layout.mx)}" sides · ${frac(layout.my)}" head & foot`],
     ['Tolerance', `± ${frac(job.tolerance)}"`],
     ['Max lift', `${frac(job.maxLift)}" (${Math.floor(job.maxLift / lift + 1e-9)} lifts of ${lift.toFixed(1)}")`],
-    ['Deliver', `${total.toLocaleString()} cards`],
+    ['Deliver', `${total.toLocaleString()} ${job.unit || 'cards'}`],
   ];
 
   return (
     <aside className="panel ticket" aria-label="Job ticket">
+      <div className="jobpick">
+        <label htmlFor="jobSelect">Job</label>
+        <select id="jobSelect" value={play.jobId} onChange={(e) => play.chooseJob(e.target.value)}>
+          {JOBS.map((j) => (
+            <option key={j.id} value={j.id}>{j.label}{play.bests[j.id] ? `  —  best ${play.bests[j.id].grade}` : ''}</option>
+          ))}
+        </select>
+      </div>
       <div className="jobhead"><strong>Job ticket</strong><span>#{job.id}</span></div>
+      {best && <div className="bestline">Your best: <b>{best.grade}</b> · {best.good.toLocaleString()} good · {best.cuts} cuts · {fmtTime(best.ms)}</div>}
       <dl className="specs">
         {specs.map(([k, v]) => [<dt key={k + 't'}>{k}</dt>, <dd key={k + 'd'}>{v}</dd>])}
       </dl>
@@ -41,6 +53,10 @@ export default function Ticket({ game, s, guides, onGuides }) {
       </div>
       <div className="toggles">
         <label><input type="checkbox" id="guidesChk" checked={guides} onChange={(e) => onGuides(e.target.checked)} /> Show trim guides</label>
+        <label>
+          <input type="checkbox" id="hintChk" checked={job.coach || play.showHint} disabled={!!job.coach} onChange={(e) => play.setShowHint(e.target.checked)} />
+          {' '}Show next-cut hint{job.coach ? ' (always on in the tutorial)' : ''}
+        </label>
       </div>
       <div>
         <h2 style={{ marginBottom: 6 }}>How to cut</h2>

@@ -158,3 +158,26 @@ ol.how b{font-weight:600}
 .sheet .panel{border:0;padding:0;background:none}
 .sheet .tray > h2{display:none}
 .sheetbtns{display:flex;gap:8px}
+
+/* ---------- coach / hint, job picker, bests ---------- */
+.hud .coach{flex-basis:100%;background:rgba(17,18,20,.9);border:1px solid var(--line);border-left:4px solid #4fd1ff;border-radius:4px;padding:7px 10px;font-size:13px;line-height:1.35}
+.coach-why{color:var(--fg)}
+.coach-steps{display:flex;flex-wrap:wrap;gap:4px 12px;list-style:none;margin:6px 0 0;padding:0}
+.coach-steps li{font-family:var(--f-display);font-weight:600;font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.coach-steps li.now{color:#4fd1ff}
+.coach-steps li.done{color:var(--ok)}
+.coach-warn{margin-top:4px;color:var(--safety);font-size:12px}
+.coach.hintline{font-family:var(--f-display);font-weight:600;letter-spacing:.06em;text-transform:uppercase;font-size:13px}
+.coach.hintline b{color:#4fd1ff;margin-right:6px}
+.tablewrap.coaching #toast{top:auto;bottom:34px;left:10px;transform:none;max-width:calc(100% - 190px)}
+.jobpick{display:grid;gap:4px}
+.jobpick label{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+#jobSelect{width:100%;background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:4px;padding:8px;font-family:var(--f-body);font-size:15px}
+.bestline{font-size:13px;color:var(--muted)}
+.bestline b{color:var(--safety)}
+.toggles input:disabled + *{opacity:.7}
+.gradeRow{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap}
+.newbest{font-family:var(--f-display);font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);background:var(--safety);padding:3px 8px;border-radius:3px;margin-bottom:8px}
+.prevbest{font-size:13px;color:var(--muted);margin-bottom:8px}
+.rbtns{display:grid;gap:8px}
+.btn.primary{background:var(--safety);color:var(--ink);border-color:var(--safety)}
