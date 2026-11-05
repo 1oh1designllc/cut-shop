@@ -34,3 +34,10 @@ export function saveBest(jobId, summary) {
 
 export function loadLastJob() { try { return localStorage.getItem(LAST_JOB); } catch { return null; } }
 export function saveLastJob(id) { try { localStorage.setItem(LAST_JOB, id); } catch { /* storage unavailable */ } }
+
+/* Blade + cutting stick wear, carried from job to job on this device. */
+const MACHINE = 'cutshop.machine.v1';
+export function loadMachine() {
+  try { const m = JSON.parse(localStorage.getItem(MACHINE) || 'null'); return m && typeof m.bladeWear === 'number' ? m : null; } catch { return null; }
+}
+export function saveMachine(m) { try { localStorage.setItem(MACHINE, JSON.stringify(m)); } catch { /* storage unavailable */ } }

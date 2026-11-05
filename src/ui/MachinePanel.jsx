@@ -3,6 +3,7 @@ import { clamp, frac, parseIn } from '../core/geometry.js';
 import { GAUGE_MIN, GAUGE_MAX } from '../core/game.js';
 import { useCanvasView } from './hooks.js';
 import LiftControl from './LiftControl.jsx';
+import Maintenance from './Maintenance.jsx';
 import { keys, moveGauge, doJog, doClamp, requestCut } from './control.js';
 
 /** The front-view canvas on its own (used by the desktop panel and the phone Machine tab). */
@@ -33,6 +34,10 @@ export default function MachinePanel({ game, s, viewRef }) {
           <button className="btn" type="button" onClick={() => game.rotate(2)}>Turn 180° <kbd>T</kbd></button>
         </div>
         <CutButtons game={game} />
+      </div>
+      <div className="panel">
+        <h2>Blade &amp; stick <em>maintenance</em></h2>
+        <Maintenance game={game} s={s} />
       </div>
     </section>
   );

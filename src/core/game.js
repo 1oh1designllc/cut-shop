@@ -18,6 +18,7 @@ import { buildLayout } from './layout.js';
 import { classify } from './classify.js';
 import { STOCKS, spoilFraction } from './stocks.js';
 import { autoplay } from './hint.js';
+import { freshMachine, fraySheets, frayCause, wear, STICK_FACES } from './machine.js';
 import { summarize } from './scoring.js';
 
 export const GAUGE_MIN = 0.5;
@@ -25,7 +26,8 @@ export const GAUGE_MAX = 19.5;
 
 /**
  * @param {object} job one of JOBS
- * @param {{ rng?: () => number, now?: () => number }} [opts] injectable for tests
+ * @param {{ rng?: () => number, now?: () => number, machine?: object }} [opts]
+ *   rng/now are injectable for tests; machine = blade/stick state carried in from earlier jobs
  */
 export function createGame(job, opts = {}) {
   if (!job.par) job.par = computePar(job);
@@ -40,6 +42,8 @@ export function createGame(job, opts = {}) {
   /** Most sheets the clamp opening takes in one pass. */
   const maxSheets = Math.floor(job.maxLift / stock.caliper + 1e-9);
   const initialLift = Math.min(maxSheets, job.defaultLift ?? stock.defaultLift ?? maxSheets);
+  // Blade + stick state outlives a single run (restart keeps it; the UI saves it on the device).
+  const machine = opts.machine ? { ...opts.machine } : freshMachine();
   const listeners = new Set();
   let evtId = 0;
   let s, snap;
@@ -51,6 +55,7 @@ export function createGame(job, opts = {}) {
       goodLayers: 0, errs: [], goodRects: [], scrapLayers: 0, ruined: new Set(),
       cuts: 0, cutLines: [], t0: 0, tEnd: 0,
       liftSheets: initialLift, curled: !!stock.curl, maxPass: 0, extraMs: 0, ops: 0,
+      frayMax: 0, safety: 0, machine,
       anim: { jogAt: 0, cutAt: 0, fall: null },
       event: null,
     };
@@ -59,7 +64,7 @@ export function createGame(job, opts = {}) {
   const say = (msg, kind = '') => { s.event = { id: ++evtId, msg, kind }; };
   const startClock = () => { if (!s.t0) s.t0 = now(); };
   const blocked = () => s.busy || s.done;
-  const spoiled = () => Math.round(job.sheets * spoilFraction(stock, s.maxPass));
+  const spoiled = () => Math.min(Math.floor(job.sheets / 2), Math.round(job.sheets * spoilFraction(stock, s.maxPass)) + s.frayMax);
   const delivered = () => s.goodLayers * (job.sheets - spoiled());
   const passesFor = (st) => (st ? Math.ceil((st.layers.length * job.sheets) / s.liftSheets) : 0);
 
@@ -169,6 +174,11 @@ export function createGame(job, opts = {}) {
       s.extraMs += (passes - 1) * 5000;
       const spoiledBefore = spoiled();
       s.maxPass = Math.max(s.maxPass, passSheets);
+      // Dull blade / grooved stick / shallow depth: bottom sheets of every pass fray or stay uncut.
+      const fray = fraySheets(machine);
+      if (fray) s.frayMax = Math.max(s.frayMax, fray * passes);
+      const causes = fray ? frayCause(machine) : [];
+      wear(machine, stock.id, pileSheets * stock.caliper, passes);
       const spoiledNow = spoiled();
       s.cutLines.push(...cutSegments(st, g));
       s.anim.fall = { stack: pieces.front, at: now() };
@@ -185,7 +195,11 @@ export function createGame(job, opts = {}) {
       let kind = '';
       if (passes > 1) parts.push(`${passes} passes.`);
       if (err) { parts.push(`Lift wasn't ${s.curled ? 'decurled' : 'jogged'}, so the cut wandered ${frac(Math.abs(err))}".`); kind = 'warn'; }
-      if (spoiledNow > spoiledBefore) {
+      if (fray) {
+        parts.push(`Bottom ${fray} sheet${fray > 1 ? 's' : ''} of each pass came out frayed — ${causes.join(' and ')}.`);
+        kind = 'bad';
+      }
+      if (spoiledNow > spoiledBefore && !fray) {
         const what = stock.slip && passSheets > stock.slipFrom ? 'clamp-marked or crept' : 'clamp-marked';
         parts.push(`${passSheets}-sheet lift: ~${spoiledNow} sheets now ${what}.`);
         kind = kind || 'warn';
@@ -229,6 +243,33 @@ export function createGame(job, opts = {}) {
       s.clampDown = false; s.jogged = false; startClock();
       const n = s.table.layers.length, np = passesFor(s.table);
       say(`Pile is now ${n} strips (${(n * job.sheets).toLocaleString()} sheets)${np > 1 ? `, ${np} passes per cut at your lift` : ''}. Jog it before cutting.`);
+      commit();
+      return true;
+    },
+
+    get machine() { return machine; },
+
+    /** Turn the cutting stick to a fresh face (4 faces), between cuts. */
+    rotateStick() {
+      if (blocked() || s.clampDown) return false;
+      if (machine.stickFace >= STICK_FACES) { say('All four faces of the stick are used. Replace it.', 'warn'); commit(); return false; }
+      machine.stickFace++; machine.stickWear = 0; s.extraMs += 30000;
+      say(`Cutting stick turned to face ${machine.stickFace} of ${STICK_FACES}.`, 'good'); commit();
+      return true;
+    },
+
+    replaceStick() {
+      if (blocked() || s.clampDown) return false;
+      machine.stickFace = 1; machine.stickWear = 0; s.extraMs += 60000;
+      say('New cutting stick in.', 'good'); commit();
+      return true;
+    },
+
+    /** Finish a blade change (see bladechange.js). */
+    installBlade({ depth = 0, violations = 0 } = {}) {
+      machine.bladeWear = 0; machine.depth = depth; machine.blades = (machine.blades || 1) + 1;
+      s.safety += violations; s.extraMs += 120000;
+      say(violations ? `New blade in, with ${violations} safety violation${violations > 1 ? 's' : ''} logged.` : 'New blade in. Sharp and set right.', violations ? 'warn' : 'good');
       commit();
       return true;
     },

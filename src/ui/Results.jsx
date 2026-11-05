@@ -10,8 +10,10 @@ export default function Results({ game, result, onNext, nextLabel }) {
   useEffect(() => { btn.current?.focus(); }, []);
   const rows = [
     [`Delivered ${unit}`, `${r.delivered.toLocaleString()} / ${r.order.toLocaleString()} ordered`],
-    ['Spoiled sheets (marks / slips)', r.spoiledSheets.toLocaleString()],
+    ['Spoiled sheets (all causes)', r.spoiledSheets.toLocaleString()],
     [`Ruined by the blade`, r.ruined.toLocaleString()],
+    ...(r.frayed ? [['Frayed / uncut (blade, stick or depth)', `${r.frayed} sheets`]] : []),
+    ...(r.safety ? [['Safety violations', r.safety]] : []),
     ['Average accuracy', r.hasErr ? `${frac(r.avgErr)}" off` : '—'],
     [`Machine cycles (par ${job.par.cuts})`, r.cuts],
     [`Time (par ${fmtTime(job.par.timeMs)})`, fmtTime(r.ms)],

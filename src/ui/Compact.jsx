@@ -10,6 +10,8 @@ import Tray from './Tray.jsx';
 import Ticket from './Ticket.jsx';
 import { MachineView, Gauge, Nudges, CutButton, useTwoHand } from './MachinePanel.jsx';
 import { doJog, doClamp } from './control.js';
+import Maintenance from './Maintenance.jsx';
+import { bladeLeft, fraySheets } from '../core/machine.js';
 
 export default function Compact({ game, s, tableView, frontView, opts, play, guides, onGuides, sound, onSound }) {
   const [sheet, setSheet] = useState(null); // 'tray' | 'ticket' | null
@@ -46,6 +48,9 @@ export default function Compact({ game, s, tableView, frontView, opts, play, gui
             Tray{s.tray.length ? ` (${s.tray.length})` : ''}
           </button>
           <button className="btn small" type="button" onClick={() => setSheet('ticket')}>Ticket</button>
+          <button className={'btn small' + (fraySheets(game.machine) ? ' attn' : '')} type="button" onClick={() => setSheet('blade')}>
+            Blade {Math.round(bladeLeft(game.machine) * 100)}%
+          </button>
         </div>
       </header>
 
@@ -55,6 +60,11 @@ export default function Compact({ game, s, tableView, frontView, opts, play, gui
       {sheet === 'tray' && (
         <Sheet title="Tray" onClose={() => setSheet(null)}>
           <Tray game={game} s={s} guides={guides} onDone={() => setSheet(null)} />
+        </Sheet>
+      )}
+      {sheet === 'blade' && (
+        <Sheet title="Blade & stick" onClose={() => setSheet(null)}>
+          <Maintenance game={game} s={s} onBladeChanged={() => setSheet(null)} />
         </Sheet>
       )}
       {sheet === 'ticket' && (

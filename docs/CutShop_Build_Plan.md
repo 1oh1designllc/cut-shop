@@ -1,7 +1,7 @@
 # Cut Shop — Build Plan
 
 *A paper-cutting game on an industrial guillotine cutter. Stocks, sizes, blade changes.*
-*Working doc. Last updated 2026-11-04.*
+*Working doc. Last updated 2026-11-05.*
 
 ---
 
@@ -49,12 +49,13 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 - **Milestone 2:** 10+ distinct jobs across 5+ stocks, each plays differently ✅ (6 shop jobs + endless random jobs, 6 stocks)
 
 ### Phase 3 — Blade & maintenance
-- [ ] Blade wear per cut, weighted by stock and lift height
-- [ ] Dull-blade effects: draw (top/bottom sheets differ), rough edges, customer rejects
-- [ ] Blade-change mini-game: lockout, bolt removal order, swap, torque in order, set depth
-- [ ] Cutting stick: grooves over time, rotate / replace
-- [ ] Safety rules: lockout skipped, hands in the light curtain → penalties
-- **Milestone 3:** maintenance is a real decision ("change now, or push through the rush job?")
+- [x] Blade wear per cut, weighted by stock and inches cut; saved on the device and carried job to job (~7 jobs per blade)
+- [x] Dull blade / grooved stick / shallow depth → bottom sheets of every pass fray or stay uncut (Jude's tell), spoiling sheets; message names the cause
+- [x] Blade-change mini-game in Jude's order: lock down → plain bolts → hex handles → slotted bolts → lift → fit from blade board → snug → depth by test cut → tighten → release
+- [x] Cutting stick: wears per pass; rotate (4 faces) or replace
+- [x] Safety violations (slotted bolt without handles, tightening before depth) logged; cap the grade at B
+- [ ] Clamp pressure as a maintenance setting (more marks vs more slipping)
+- **Milestone 3:** maintenance is a real decision ("change now, or push through the rush job?") — mechanics in; becomes a real choice once Phase 5 adds rush jobs and the clock
 
 ### Phase 4 — Art & sound
 - [ ] Final vector art: machine face, table, stack, UI chrome (from Jude's Illustrator files)

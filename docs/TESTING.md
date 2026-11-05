@@ -21,7 +21,8 @@ To test on your phone on the same Wi-Fi: `npm run dev -- --host`, then open the 
 | `geometry-harness.js` | Affine math, cut/rotate geometry, inch parsing and fraction display |
 | `classify-harness.js` | Job layout, good / wip / scrap / ruined decisions at the tolerance edges |
 | `game-harness.js` | The full 20-cut par run of Job #2417 delivers 2,100 cards with grade S, plus the rules (clamp, jog, air cut, lift height) |
-| `hint-harness.js` | The hint engine plays every job by itself within par with nothing ruined, and recovers from a sloppy cut and a ruined row |
+| `hint-harness.js` | The hint engine plays every job (and 40 random jobs) by itself, meets the order within par with nothing ruined; lift trade-off and curl behaviour |
+| `maintenance-harness.js` | Blade/stick wear across jobs, fraying, depth effects, stick rotation, and the blade-change order with safety violations |
 
 ## 3. Manual playtest checklist
 
@@ -46,6 +47,12 @@ To test on your phone on the same Wi-Fi: `npm run dev -- --host`, then open the 
 - [ ] Finishing shows the grade, "New best!" the first time, and a Next job button
 - [ ] Job picker (Ticket) switches jobs and shows best grades
 - [ ] Next-cut hint toggle shows the dashed line and NEXT steps on Job #2417
+
+### Blade & stick
+- [ ] Blade % in the phone header turns yellow when it starts fraying
+- [ ] Full blade change works with taps; pulling a slotted bolt early is refused and logged
+- [ ] Depth test cuts: shallow / biting / clean messages make sense
+- [ ] Wear carries into the next job (reload the page: blade % stays)
 
 ### Layout
 - [ ] Desktop: three columns, nothing overlaps

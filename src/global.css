@@ -197,3 +197,34 @@ ol.how b{font-weight:600}
 #liftRange{width:100%;accent-color:var(--safety);touch-action:none}
 .liftnotes{display:flex;flex-wrap:wrap;gap:2px 12px;font-size:12px;color:var(--muted)}
 .liftnotes .ok{color:var(--ok)} .liftnotes .warn{color:var(--safety)} .liftnotes .bad{color:var(--bad)}
+
+/* ---------- phase 3: maintenance + blade change ---------- */
+.maint{display:grid;gap:10px}
+.meter{display:grid;gap:4px}
+.meterhead{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--f-display);font-weight:600;letter-spacing:.12em;text-transform:uppercase;font-size:13px;color:var(--muted)}
+.meterhead b{font-family:var(--f-mono);font-weight:400;font-size:16px;letter-spacing:0}
+.meterbar{height:8px;border-radius:4px;background:var(--panel2);border:1px solid var(--line);overflow:hidden}
+.meterbar i{display:block;height:100%}
+.meterhead .ok,.depthres.ok{color:var(--ok)} .meterhead .warn,.depthres.warn{color:var(--safety)} .meterhead .bad{color:var(--bad)}
+.meterbar i.ok{background:var(--ok)} .meterbar i.warn{background:var(--safety)} .meterbar i.bad{background:var(--bad)}
+.meternote{font-size:12px;color:var(--muted)}
+.maintwarn{font-size:13px;color:var(--bad);border-left:3px solid var(--bad);padding-left:8px}
+.maintbtns{display:flex;flex-wrap:wrap;gap:6px}
+.bladecard{max-width:460px}
+.bchead{display:flex;justify-content:space-between;align-items:baseline;gap:10px}
+.bcstep{font-family:var(--f-mono);color:var(--muted);font-size:13px}
+.bcmsg{margin:0;font-size:14px;min-height:3.2em}
+.bcmsg.bad{color:var(--bad)}
+.bcsvg{width:100%;height:auto;display:block;background:#1d2023;border-radius:4px}
+.bolt{cursor:pointer;outline:none}
+.bolt:focus-visible circle:first-of-type{stroke:var(--safety)}
+.bolt.live circle:nth-of-type(1){animation:pulse 1.2s ease-in-out infinite}
+@keyframes pulse{50%{opacity:.35}}
+@media (prefers-reduced-motion:reduce){.bolt.live circle{animation:none}}
+.depthbox{display:grid;gap:8px;background:var(--panel2);border:1px solid var(--line);border-radius:4px;padding:8px}
+.depthsvg{width:100%;max-width:260px;margin:0 auto;display:block}
+.depthbtns{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.depthres{text-align:center;font-family:var(--f-display);font-weight:600;letter-spacing:.08em;text-transform:uppercase}
+.bcactions{display:grid;gap:8px}
+.holdbtn{--p:0;background:linear-gradient(90deg,rgba(242,194,48,.45) calc(var(--p)*100%),var(--panel2) 0);touch-action:none;padding:14px 10px}
+.bcviol{font-size:13px;color:var(--bad)}

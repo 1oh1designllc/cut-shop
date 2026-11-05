@@ -8,7 +8,7 @@ import { drawTable } from '../render/tableView.js';
 import { createFrontRenderer } from '../render/frontView.js';
 import { useSnapshot, useCompact } from './hooks.js';
 import { bindKeyboard } from './control.js';
-import { loadBests, saveBest, loadLastJob, saveLastJob } from './bests.js';
+import { loadBests, saveBest, loadLastJob, saveLastJob, loadMachine, saveMachine } from './bests.js';
 import Compact from './Compact.jsx';
 import Header from './Header.jsx';
 import TablePanel from './TablePanel.jsx';
@@ -31,7 +31,7 @@ export default function App() {
   const [jobId, setJobId] = useState(initialJob);
   const [random, setRandom] = useState(null); // the current random job, if any
   const job = (random && random.id === jobId ? random : JOBS.find((j) => j.id === jobId)) || JOBS[0];
-  const game = useMemo(() => createGame(job), [job]);
+  const game = useMemo(() => createGame(job, { machine: loadMachine() || undefined }), [job]);
   const s = useSnapshot(game);
   const [guides, setGuides] = useState(true);
   const [sound, setSound] = useState(true);
@@ -63,6 +63,7 @@ export default function App() {
   const nextJob = idx >= 0 && idx < JOBS.length - 1 ? JOBS[idx + 1] : { id: 'random', label: 'New random job' };
 
   useEffect(() => { sfx.on = sound; }, [sound]);
+  useEffect(() => { saveMachine(game.machine); }, [s, game]); // keep blade/stick wear between jobs
 
   // Record the best score once, when a run finishes.
   useEffect(() => {

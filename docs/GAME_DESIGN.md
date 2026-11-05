@@ -48,25 +48,36 @@ Numbers are first guesses; tune them in playtest.
 
 **Layouts (Jude, 2026-11-04):** every job has a double trim (¼" gutter = two ⅛" bleeds). Business cards run **24-up (3 × 8)** on 12×18, so the bleed reaches the head and foot of the sheet. 4×6 and 5×7 postcards run **4-up**. The occasional **5-up 4×6** (mixed orientation) is saved for the PC/Mac edition.
 
-## 4. Blade & maintenance (Phase 3)
+## 4. Blade & maintenance (Phase 3, from Jude's walkthrough 2026-11-05)
 
-- **Wear** accrues per cut: `lift height × stock.wear`. Shown as a meter.
-- **Below 40%:** draw error grows (top sheets up to 1/32" off). **Below 15%:** rough edges, rejects.
-- **Blade change mini-game:**
-  1. Lock out the machine (key switch). Skipping it is a safety violation and ends the shift.
-  2. Fit the blade carrier/guard.
-  3. Remove the blade bolts in the correct order (outside → in).
-  4. Swap the blade.
-  5. Torque the bolts in order (centre → out).
-  6. Set blade depth with a test cut on scrap. Too deep chews the stick; too shallow misses the bottom sheets.
-- **Cutting stick:** groove depth increases per cut at the same position; deep groove = bottom sheets not cut through. Rotate (4 faces) or replace.
+**Wear.** A real blade lasts 3–8 months; the game squeezes that into roughly 7 jobs. Every cut wears the blade (inches of paper × how hard the stock is: C2S hardest) and the cutting stick (per machine pass). Wear is saved on the device and carries from job to job.
+
+**What dull looks like** (Jude: "it will not cut the last couple sheets, or leave them frayed"): once the blade drops below ~35%, or a stick face is more than ~70% grooved, the **bottom sheets of every pass come out frayed or uncut**. Those sheets are spoiled. The message names the cause (dull blade, grooved stick, shallow depth). Usually it's the blade; sometimes it's the stick.
+
+**Cutting stick:** 4 faces. **Rotate** to a fresh face (+30 s), then **replace** (+60 s).
+
+**Blade change (+2 min)**, in Jude's order:
+1. Hold both CUT buttons until the blade comes down and locks.
+2. Remove every bolt **except the two slotted ones**.
+3. Screw the long **hex handles** into the slots, so you never grip the blade.
+4. Remove the two slotted bolts.
+5. Lift the old blade out with the handles.
+6. Take the new blade off the **blade board**, handles in, and fit it.
+7. Put every bolt back in **snug**, not tight.
+8. **Set the depth** with test cuts: just through the last sheet, only kissing the stick. Too shallow leaves bottom sheets uncut; too deep bites the stick (damages stick, blade and paper; wears both faster).
+9. Tighten every bolt.
+10. Release.
+
+Out-of-order moves are refused. Dangerous ones count as **safety violations**: pulling a slotted bolt with no handles in, or tightening before the depth is set. Any violation caps the job grade at B.
+
+**Clamp pressure** stays fixed (a future maintenance setting: too high = more marks, too low = more slipping).
 
 ## 5. Scoring
 
 - **Delivered** = finished positions × sheets that weren't spoiled. The order quantity must be met.
 - **Good** = within tolerance on every edge (±1/32" on shop jobs, 1/16" in the tutorial).
 - **Ruined** = a cut went more than tolerance into a piece's trim box.
-- **Grade:** S = order met, average error ≤ 1/64", machine cycles ≤ par, time ≤ par. A = order met. B ≥ 95% of order, C ≥ 80%, else D.
+- **Grade:** S = order met, no safety violations, average error ≤ 1/64", machine cycles ≤ par, time ≤ par. A = order met, no violations. B = order met with a violation, or ≥ 95% of order. C ≥ 80%, else D.
 - **Par** is computed by letting the hint engine play the job at the stock's default lift, plus 2 cycles of slack.
 
 ## 6. Job #2417 par solution (20 cuts)
