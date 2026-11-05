@@ -12,8 +12,8 @@
  *  8. snug      Put the other bolts in, snug only.
  *  9. depth     Test-cut until it cuts the last sheet and just kisses the stick.
  * 10. tighten   Tighten the other bolts.
- * 11. unhandle  Unscrew the hex handles.                      ┐ assumed — to confirm
- * 12. slotback  Put the two slotted bolts back in and tighten. ┘ with Jude
+ * 11. unhandle  Unscrew the hex handles.                      (confirmed by Jude
+ * 12. slotback  Put the two slotted bolts back in and tighten.  2026-11-05)
  * 13. release   Release the blade. Done.
  * Out-of-order moves are refused; dangerous ones also count as safety violations
  * (pulling plain bolts before the handles hold the blade; tightening before the

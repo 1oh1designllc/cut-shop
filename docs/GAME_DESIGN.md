@@ -67,8 +67,8 @@ Numbers are first guesses; tune them in playtest.
 8. Put the other bolts in, **snug** only.
 9. **Set the depth** with test cuts: just through the last sheet, only kissing the stick. Too shallow leaves bottom sheets uncut; too deep bites the stick (damages stick, blade and paper; wears both faster).
 10. Tighten the bolts.
-11. Unscrew the hex handles. *(assumed — confirm with Jude)*
-12. Put the two slotted bolts back and tighten them. *(assumed — confirm with Jude)*
+11. Unscrew the hex handles.
+12. Put the two slotted bolts back and tighten them.
 13. Release.
 
 Out-of-order moves are refused. Dangerous ones count as **safety violations**: pulling a plain bolt before the handles are holding the blade, or tightening before the depth is set. Any violation caps the job grade at B.
