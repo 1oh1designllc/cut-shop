@@ -56,19 +56,22 @@ Numbers are first guesses; tune them in playtest.
 
 **Cutting stick:** 4 faces. **Rotate** to a fresh face (+30 s), then **replace** (+60 s).
 
-**Blade change (+2 min)**, in Jude's order:
+**Blade change (+2 min)**, in Jude's order (corrected 2026-11-05 with a photo of the slot):
 1. Hold both CUT buttons until the blade comes down and locks.
-2. Remove every bolt **except the two slotted ones**.
-3. Screw the long **hex handles** into the slots, so you never grip the blade.
-4. Remove the two slotted bolts.
-5. Lift the old blade out with the handles.
-6. Take the new blade off the **blade board**, handles in, and fit it.
-7. Put every bolt back in **snug**, not tight.
-8. **Set the depth** with test cuts: just through the last sheet, only kissing the stick. Too shallow leaves bottom sheets uncut; too deep bites the stick (damages stick, blade and paper; wears both faster).
-9. Tighten every bolt.
-10. Release.
+2. Unscrew the **two slotted bolts first**: one on the left, one on the right (vertical slots).
+3. Screw the **hex handles** (long bar, threaded stud) into those spots. They lock the blade and give you a grip.
+4. Loosen and remove **all the other bolts**.
+5. Lift the old blade out with the handles; lay it on a flat surface.
+6. Move the handles to the **same spots on the new blade** on the wooden blade board.
+7. Lift the new blade into position; **tighten the handles** to lock it in.
+8. Put the other bolts in, **snug** only.
+9. **Set the depth** with test cuts: just through the last sheet, only kissing the stick. Too shallow leaves bottom sheets uncut; too deep bites the stick (damages stick, blade and paper; wears both faster).
+10. Tighten the bolts.
+11. Unscrew the hex handles. *(assumed — confirm with Jude)*
+12. Put the two slotted bolts back and tighten them. *(assumed — confirm with Jude)*
+13. Release.
 
-Out-of-order moves are refused. Dangerous ones count as **safety violations**: pulling a slotted bolt with no handles in, or tightening before the depth is set. Any violation caps the job grade at B.
+Out-of-order moves are refused. Dangerous ones count as **safety violations**: pulling a plain bolt before the handles are holding the blade, or tightening before the depth is set. Any violation caps the job grade at B.
 
 **Clamp pressure** stays fixed (a future maintenance setting: too high = more marks, too low = more slipping).
 

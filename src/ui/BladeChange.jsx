@@ -3,10 +3,9 @@
  * Tap bolts on the diagram; buttons for the other steps; test cuts to set the depth.
  */
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createBladeChange, BOLTS } from '../core/bladechange.js';
+import { createBladeChange, BOLTS, ORDER } from '../core/bladechange.js';
 import { sfx } from '../audio/sfx.js';
 
-const ORDER = ['lock', 'bolts', 'handles', 'slotted', 'lift', 'fit', 'snug', 'depth', 'tighten', 'release', 'done'];
 const at = (st, step) => ORDER.indexOf(st.step) >= ORDER.indexOf(step);
 const boltX = (i) => 30 + i * 43;
 
@@ -38,21 +37,28 @@ export default function BladeChange({ onCancel, onDone }) {
   const st = bc.state;
   const act = (fn, sound = 'tick') => { const ok = fn(); if (ok && sound) sfx[sound](); if (!ok) sfx.noise(0.12, 400, 'lowpass', 0.4); render((n) => n + 1); };
 
-  const boltTappable = ['bolts', 'handles', 'slotted', 'snug', 'tighten', 'depth'].includes(st.step);
-  const oldIn = !at(st, 'fit');
-  const newIn = at(st, 'snug');
-  const handlesUp = st.handles && (st.step === 'slotted' || st.step === 'lift');
+  const boltTappable = ['slotted', 'handles', 'bolts', 'snug', 'depth', 'tighten', 'slotback'].includes(st.step);
+  const oldIn = !at(st, 'move');          // old blade in the machine until it's lifted out
+  const newIn = at(st, 'snug');           // new blade fitted from 'fit' onwards
+  const handlesInMachine = (st.handles === 'old' && !at(st, 'move')) || (st.handles === 'new' && at(st, 'snug'));
+  const liveFor = (b, state) =>
+    (st.step === 'slotted' && b.slotted && state === 'tight') ||
+    (st.step === 'bolts' && !b.slotted && state === 'tight') ||
+    (st.step === 'snug' && !b.slotted && state === 'out') ||
+    (st.step === 'tighten' && !b.slotted && state === 'snug') ||
+    (st.step === 'slotback' && b.slotted && state === 'out');
+  const total = ORDER.length - 1;
 
   return (
     <div className="modal">
       <div className="rcard bladecard" role="dialog" aria-labelledby="bcTitle">
         <div className="bchead">
           <h3 id="bcTitle">Blade change</h3>
-          <span className="bcstep">Step {Math.min(ORDER.indexOf(st.step) + 1, 10)} / 10</span>
+          <span className="bcstep">Step {Math.min(ORDER.indexOf(st.step) + 1, total)} / {total}</span>
         </div>
         <p className={'bcmsg' + (st.violations.length && st.message === st.violations[st.violations.length - 1] ? ' bad' : '')} aria-live="polite">{st.message}</p>
 
-        <svg className="bcsvg" viewBox="0 0 360 230" role="img" aria-label="Blade, bolts and blade board">
+        <svg className="bcsvg" viewBox="0 0 360 250" role="img" aria-label="Blade, bolts and blade board">
           <rect x="10" y="40" width="340" height="50" rx="4" fill="#5a6268" />
           <text x="16" y="34" fill="#9ba2a7" fontSize="10" fontFamily="Saira Condensed, sans-serif" letterSpacing="1.5">BLADE CARRIER</text>
           {/* blade in the machine */}
@@ -67,7 +73,7 @@ export default function BladeChange({ onCancel, onDone }) {
           {BOLTS.map((b, i) => {
             const state = st.bolts[b.id];
             const x = boltX(i);
-            const live = boltTappable && ((['bolts', 'handles', 'slotted'].includes(st.step) && state === 'tight') || (st.step === 'snug' && state === 'out') || (st.step === 'tighten' && state === 'snug'));
+            const live = boltTappable && liveFor(b, state);
             return (
               <g
                 key={b.id} className={'bolt' + (live ? ' live' : '')} tabIndex={boltTappable ? 0 : -1} role="button"
@@ -75,7 +81,7 @@ export default function BladeChange({ onCancel, onDone }) {
                 onClick={() => act(() => bc.bolt(b.id))}
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); act(() => bc.bolt(b.id)); } }}
               >
-                {b.slotted && <rect x={x - 15} y={59} width="30" height="12" rx="6" fill="#2a2e32" />}
+                {b.slotted && <rect x={x - 6} y={49} width="12" height="32" rx="6" fill="#2a2e32" />}
                 {live && <circle cx={x} cy="65" r="17" fill="none" stroke="#4fd1ff" strokeWidth="2" />}
                 {state === 'out'
                   ? <circle cx={x} cy="65" r="9" fill="#17191b" stroke="#3a4045" />
@@ -88,8 +94,8 @@ export default function BladeChange({ onCancel, onDone }) {
               </g>
             );
           })}
-          {/* hex handles in the slots */}
-          {handlesUp && BOLTS.map((b, i) => b.slotted && (
+          {/* hex handles in the slotted spots */}
+          {handlesInMachine && BOLTS.map((b, i) => b.slotted && (
             <g key={'h' + b.id}>
               <rect x={boltX(i) - 3} y="6" width="6" height="58" fill="#2a2e32" />
               <rect x={boltX(i) - 16} y="2" width="32" height="8" rx="3" fill="#f2c230" />
@@ -103,12 +109,15 @@ export default function BladeChange({ onCancel, onDone }) {
               <rect x="24" y="176" width="312" height="22" fill="#e3e8eb" />
               <rect x="24" y="194" width="312" height="4" fill="#ffffff" />
               <text x="290" y="191" fill="#5a6268" fontSize="9" fontFamily="Share Tech Mono, monospace">NEW</text>
+              {st.handles === 'new' && BOLTS.map((b, i) => b.slotted && (
+                <g key={'nh' + b.id}><rect x={boltX(i) - 3} y="150" width="6" height="34" fill="#2a2e32" /><rect x={boltX(i) - 16} y="146" width="32" height="8" rx="3" fill="#f2c230" /></g>
+              ))}
             </g>
           )}
-          {at(st, 'fit') && (
+          {at(st, 'move') && (
             <g>
-              <rect x="24" y="176" width="312" height="22" fill="#b9c0c5" />
-              <text x="290" y="191" fill="#5a6268" fontSize="9" fontFamily="Share Tech Mono, monospace">OLD</text>
+              <rect x="24" y="224" width="312" height="8" fill="#b9c0c5" />
+              <text x="26" y="245" fill="#9ba2a7" fontSize="9" fontFamily="Share Tech Mono, monospace">OLD BLADE · LAID FLAT</text>
             </g>
           )}
         </svg>
@@ -133,8 +142,10 @@ export default function BladeChange({ onCancel, onDone }) {
         <div className="bcactions">
           {st.step === 'lock' && <HoldButton ms={1200} onDone={() => act(() => bc.lock(), 'thunk')}>Hold both CUT buttons to lock the blade down</HoldButton>}
           {st.step === 'handles' && <button className="btn primary" type="button" onClick={() => act(() => bc.attachHandles())}>Screw in the hex handles</button>}
-          {st.step === 'lift' && <button className="btn primary" type="button" onClick={() => act(() => bc.liftOld(), 'hiss')}>Lift the old blade out</button>}
-          {st.step === 'fit' && <button className="btn primary" type="button" onClick={() => act(() => bc.fitNew(), 'hiss')}>Fit the new blade from the board</button>}
+          {st.step === 'lift' && <button className="btn primary" type="button" onClick={() => act(() => bc.liftOld(), 'hiss')}>Lift the old blade out, lay it flat</button>}
+          {st.step === 'move' && <button className="btn primary" type="button" onClick={() => act(() => bc.moveHandles())}>Move the handles to the new blade</button>}
+          {st.step === 'fit' && <button className="btn primary" type="button" onClick={() => act(() => bc.fitNew(), 'hiss')}>Lift the new blade in, lock the handles</button>}
+          {st.step === 'unhandle' && <button className="btn primary" type="button" onClick={() => act(() => bc.removeHandles())}>Unscrew the hex handles</button>}
           {st.step === 'release' && <button className="btn primary" type="button" onClick={() => act(() => bc.release(), 'hiss')}>Release the blade</button>}
           {st.step === 'done' && <button className="btn primary" type="button" onClick={() => onDone({ depth: st.depth, violations: st.violations.length })}>Back to cutting</button>}
           {st.step === 'lock' && <button className="btn small" type="button" onClick={onCancel}>Not now</button>}

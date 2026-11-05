@@ -72,39 +72,50 @@ console.log('\nDull blade, stick, depth');
   check('deep depth wears the blade and stick faster', deep.machine.bladeWear > right.machine.bladeWear * 2 && deep.machine.stickWear > right.machine.stickWear * 2);
 }
 
-console.log('\nBlade change — Jude\'s order');
+console.log('\nBlade change — Jude\'s order (corrected 2026-11-05)');
 {
   const bc = createBladeChange(() => 0.1); // new blade starts 1 step shallow
-  check('starts at lock', bc.state.step === 'lock');
-  check('bolts refused before the blade is locked down', bc.bolt(1) === false && bc.state.step === 'lock');
-  bc.lock();
   const slotted = BOLTS.filter((b) => b.slotted).map((b) => b.id);
   const plain = BOLTS.filter((b) => !b.slotted).map((b) => b.id);
-  check('pulling a slotted bolt with no handles is refused + a safety violation', bc.bolt(slotted[0]) === false && bc.state.violations.length === 1);
-  plain.forEach((id) => bc.bolt(id));
-  check('after the plain bolts: handles step', bc.state.step === 'handles');
-  bc.attachHandles();
+  check('slotted bolts are the two at the ends (left + right)', slotted.join() === '1,8');
+  check('starts at lock; bolts refused before the blade is locked down', bc.state.step === 'lock' && bc.bolt(1) === false);
+  bc.lock();
+  check('pulling a plain bolt first is refused + a safety violation', bc.bolt(plain[0]) === false && bc.state.violations.length === 1);
+  check('handles can\'t go in while the slotted bolts are still there', bc.attachHandles() === false);
   slotted.forEach((id) => bc.bolt(id));
-  check('slotted bolts out once handles are on → lift', bc.state.step === 'lift');
-  bc.liftOld(); bc.fitNew();
-  check('new blade fitted → snug the bolts', bc.state.step === 'snug');
-  BOLTS.forEach((b) => bc.bolt(b.id));
-  check('all snug → depth', bc.state.step === 'depth');
-  check('tightening before the depth is set is refused + a violation', bc.bolt(1) === false && bc.state.violations.length === 2);
+  check('slotted bolts out first → handles', bc.state.step === 'handles');
+  check('a plain bolt before the handles are in is still a violation', bc.bolt(plain[0]) === false && bc.state.violations.length === 2);
+  bc.attachHandles();
+  check('handles in the old blade → remove the other bolts', bc.state.step === 'bolts' && bc.state.handles === 'old');
+  plain.forEach((id) => bc.bolt(id));
+  check('all bolts out → lift', bc.state.step === 'lift');
+  bc.liftOld();
+  check('old blade out, laid flat → move the handles to the new blade', bc.state.step === 'move');
+  bc.moveHandles();
+  check('handles in the new blade on the board → fit', bc.state.step === 'fit' && bc.state.handles === 'new');
+  bc.fitNew();
+  check('fitted and locked by the handles → snug the other bolts', bc.state.step === 'snug');
+  check('slotted spots hold the handles, can\'t be snugged', bc.bolt(slotted[0]) === false);
+  plain.forEach((id) => bc.bolt(id));
+  check('other bolts snug (slotted spots hold the handles) → depth', bc.state.step === 'depth' && slotted.every((id) => bc.state.bolts[id] === 'out'));
+  check('tightening before the depth is set is refused + a violation', bc.bolt(plain[0]) === false && bc.state.violations.length === 3);
   bc.testCut();
   check('test cut on a shallow blade: bottom sheets not cut through', bc.state.lastTest === 'shallow' && bc.state.step === 'depth');
   bc.adjust(+1); bc.adjust(+1); bc.testCut();
   check('too deep: blade bites the stick', bc.state.lastTest === 'deep');
   bc.adjust(-1); bc.testCut();
   check('right: clean cut → tighten', bc.state.lastTest === 'right' && bc.state.step === 'tighten');
-  check('release refused until every bolt is tight', bc.release() === false);
-  BOLTS.forEach((b) => bc.bolt(b.id));
-  check('all tight → release → done', bc.release() === true && bc.state.step === 'done' && bc.state.depth === 0);
+  check('release refused until finished', bc.release() === false);
+  plain.forEach((id) => bc.bolt(id));
+  check('bolts tight → take the handles out', bc.state.step === 'unhandle');
+  bc.removeHandles();
+  slotted.forEach((id) => bc.bolt(id));
+  check('slotted bolts back in and tight → release → done', bc.state.step === 'release' && bc.release() === true && bc.state.step === 'done' && bc.state.depth === 0);
 
   let t = 0;
   const g = createGame(job('3101'), { now: () => (t += 1000), machine: { ...freshMachine(), bladeWear: BLADE_LIFE * 0.9 } });
   g.installBlade({ depth: bc.state.depth, violations: bc.state.violations.length });
-  check('installing resets the blade and logs the violations', bladeLeft(g.machine) === 1 && g.state.safety === 2);
+  check('installing resets the blade and logs the violations', bladeLeft(g.machine) === 1 && g.state.safety === 3);
   autoplay(g);
   check('a safety violation caps the grade at B even with the order met', g.summary().delivered >= g.order && g.summary().grade === 'B', g.summary().grade);
 }
