@@ -21,7 +21,7 @@ console.log('\nRegistry');
 check('every art slot has a group, description and size', Object.values(ART_SLOTS).every((a) => a.group && a.desc && a.size));
 check('every job (built-in) has an artwork slot', JOBS.every((j) => ART_SLOTS[jobArtSlot(j)]), JOBS.filter((j) => !ART_SLOTS[jobArtSlot(j)]).map((j) => j.id).join());
 check('every job template has an artwork slot', Object.keys(TEMPLATES).every((k) => ART_SLOTS[`job.${k}`]));
-check('12 sound slots', Object.keys(SOUND_SLOTS).length === 12);
+check('11 sound slots (no warning beep: Jude\'s cutter has none)', Object.keys(SOUND_SLOTS).length === 11);
 
 console.log('\nImport + manifest');
 {

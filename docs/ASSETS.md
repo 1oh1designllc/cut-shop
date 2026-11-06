@@ -24,9 +24,8 @@ Record with **Voice Memos, set to Lossless** (Settings → Apps → Voice Memos 
 | `clamp-up` | Clamp releasing |
 | `trim-fall` | Trim strip falling |
 | `jog` | Jogging / knocking up a stack by hand |
-| `wheel` | Hand wheel turning (one short tick) |
+| `wheel` | Hand wheel turning, a few seconds (loops while the gauge moves) |
 | `idle` | Machine idle hum, 10–15 s (loops quietly) |
-| `beep` | Any warning beep or tone |
 | `bolt` | Hex key on a bolt |
 | `blade-set` | Blade set down on the bench |
 | `handle` | Hex handle screwing in |

@@ -10,7 +10,7 @@ let idleNode = null;
 let wheelNode = null, wheelTimer = 0;
 
 /** Mix levels for Jude's recordings (all were loudness-matched on import). */
-const LEVEL = { 'cut-thick': 1, 'cut-thin': 0.75, 'clamp-down': 0.7, 'clamp-up': 0.6, 'trim-fall': 0.8, jog: 0.85, wheel: 0.5, bolt: 0.8, 'blade-set': 0.8, handle: 0.7, beep: 0.6 };
+const LEVEL = { 'cut-thick': 1, 'cut-thin': 0.75, 'clamp-down': 0.7, 'clamp-up': 0.6, 'trim-fall': 0.8, jog: 0.85, wheel: 0.5, bolt: 0.8, 'blade-set': 0.8, handle: 0.7 };
 
 export const sfx = {
   on: true,
@@ -113,7 +113,8 @@ export const sfx = {
     }
     if (crossed) this.tick();
   },
-  beep() { this.play('beep', function () { this.tone(880, 0.12, 0.08, 'square'); }); },
+  /** Refused action. Jude's cutter has no warning beep, so this stays silent (the on-screen message explains). */
+  beep() {},
   bolt() { this.play('bolt', this.tick); },
   bladeSet() { this.play('blade-set', this.hiss); },
   handle() { this.play('handle', this.tick); },
