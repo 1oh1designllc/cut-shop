@@ -8,7 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "test": "node tests/geometry-harness.js && node tests/classify-harness.js && node tests/game-harness.js && node tests/hint-harness.js && node tests/maintenance-harness.js",
+    "test": "node tests/geometry-harness.js && node tests/classify-harness.js && node tests/game-harness.js && node tests/hint-harness.js && node tests/maintenance-harness.js && node tests/assets-harness.js",
     "check": "npm test && npm run build"
   },
   "dependencies": {

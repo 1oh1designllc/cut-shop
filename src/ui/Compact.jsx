@@ -11,6 +11,7 @@ import Ticket from './Ticket.jsx';
 import { MachineView, Gauge, Nudges, CutButton, useTwoHand } from './MachinePanel.jsx';
 import { doJog, doClamp } from './control.js';
 import Maintenance from './Maintenance.jsx';
+import { assets } from '../assets/loader.js';
 import { bladeLeft, fraySheets } from '../core/machine.js';
 
 export default function Compact({ game, s, tableView, frontView, opts, play, guides, onGuides, sound, onSound }) {
@@ -37,7 +38,7 @@ export default function Compact({ game, s, tableView, frontView, opts, play, gui
   return (
     <>
       <header className="compacthead">
-        <h1>Cut Shop</h1>
+        <h1>{assets.artUrl['ui.wordmark'] ? <img className="wordmark" src={assets.artUrl['ui.wordmark']} alt="Cut Shop" /> : 'Cut Shop'}</h1>
         <div className="ministats" aria-label="Time, cuts, good cards">
           <span><b>{fmtTime(ms)}</b></span>
           <span><b>{s.cuts}</b> cuts</span>

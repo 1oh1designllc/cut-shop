@@ -228,3 +228,23 @@ ol.how b{font-weight:600}
 .bcactions{display:grid;gap:8px}
 .holdbtn{--p:0;background:linear-gradient(90deg,rgba(242,194,48,.45) calc(var(--p)*100%),var(--panel2) 0);touch-action:none;padding:14px 10px}
 .bcviol{font-size:13px;color:var(--bad)}
+
+/* supplied wordmark */
+h1 .wordmark{display:block;height:30px;width:auto}
+.compacthead h1 .wordmark{height:22px}
+
+/* ---------- asset check page (#assets) ---------- */
+.assetpage{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:none!important;max-width:1000px}
+.assetpage header{grid-area:auto}
+.assetintro{margin:0;color:var(--muted)}
+.slotlist{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.slot{border:1px solid var(--line);border-left:4px solid var(--line);border-radius:4px;padding:8px 10px;background:var(--panel2);display:grid;gap:4px;min-width:0}
+.slot.filled{border-left-color:var(--ok)}
+.slotname{display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.slotname code{font-family:var(--f-mono);font-size:14px;overflow-wrap:anywhere}
+.slotstate{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.slot.filled .slotstate{color:var(--ok)}
+.slotdesc{font-size:13px;color:var(--muted)}
+.slotdesc b{color:var(--fg);font-weight:500}
+.slotbtns{display:flex;flex-wrap:wrap;gap:6px}
+.slotprev{max-height:120px;width:auto;max-width:100%;background:repeating-conic-gradient(#2a2e32 0 25%,#212427 0 50%) 0 0/16px 16px;border-radius:3px;justify-self:start}

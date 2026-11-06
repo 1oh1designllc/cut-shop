@@ -4,6 +4,8 @@
  * All drawing is in inches; `px` is CSS pixels per inch (for line widths/text).
  */
 import { inv } from '../core/geometry.js';
+import { assets } from '../assets/loader.js';
+import { jobArtSlot } from '../assets/registry.js';
 
 const INK = { block: '#1d6e78', logo: '#f2c230', text: '#e9f1ef', textDim: 'rgba(233,241,239,.55)' };
 
@@ -12,11 +14,22 @@ export function drawSheetArt(ctx, px, game, { guides = true } = {}) {
   const { w: CW, h: CH } = job.finished;
   const lw = 1 / px;
   const pb = layout.printBlock;
-  // Placeholder artwork, laid out in proportion to the piece so every job type reads.
-  ctx.fillStyle = job.ink || INK.block;
-  ctx.fillRect(pb.x, pb.y, pb.w, pb.h);
+  const art = assets.art[jobArtSlot(job)]; // Jude's design for this job type, trim + bleed
+  if (!art) {
+    // Placeholder artwork, laid out in proportion to the piece so every job type reads.
+    ctx.fillStyle = job.ink || INK.block;
+    ctx.fillRect(pb.x, pb.y, pb.w, pb.h);
+  }
   for (const k of layout.cards) {
     const x = k.x0, y = k.y0, m = Math.min(CW, CH);
+    if (art) {
+      ctx.drawImage(art, x - job.bleed, y - job.bleed, CW + 2 * job.bleed, CH + 2 * job.bleed);
+      if (guides) {
+        ctx.save(); ctx.strokeStyle = 'rgba(255,255,255,.6)'; ctx.lineWidth = lw; ctx.setLineDash([4 * lw, 3 * lw]);
+        ctx.strokeRect(x, y, CW, CH); ctx.restore();
+      }
+      continue;
+    }
     ctx.fillStyle = 'rgba(0,0,0,.22)'; ctx.fillRect(x + CW * 0.857, y - job.bleed, CW * 0.063, CH + 2 * job.bleed);
     ctx.fillStyle = INK.logo; ctx.beginPath(); ctx.arc(x + CW * 0.13, y + CH * 0.26, m * 0.12, 0, Math.PI * 2); ctx.fill();
     ctx.fillStyle = INK.text; ctx.fillRect(x + CW * 0.243, y + CH * 0.19, CW * 0.457, CH * 0.075);

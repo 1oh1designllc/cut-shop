@@ -58,6 +58,7 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 - **Milestone 3:** maintenance is a real decision ("change now, or push through the rush job?") — mechanics in; becomes a real choice once Phase 5 adds rush jobs and the clock
 
 ### Phase 4 — Art & sound
+- [x] Asset drop-in (2026-11-05): every sound and art piece is a named slot (docs/ASSETS.md); supplied files replace stand-ins one by one; `tools/prepare-assets.mjs` imports, converts and builds the manifest; check page at `#assets`
 - [ ] Final vector art: machine face, table, stack, UI chrome (from Jude's Illustrator files)
 - [ ] Recorded sounds from the real cutter: clamp hiss, blade thunk, trim fall, gauge motor
 - [ ] Juice: screen shake on heavy cuts, paper flutter, finished-stack counter

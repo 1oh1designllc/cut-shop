@@ -22,6 +22,7 @@ To test on your phone on the same Wi-Fi: `npm run dev -- --host`, then open the 
 | `classify-harness.js` | Job layout, good / wip / scrap / ruined decisions at the tolerance edges |
 | `game-harness.js` | The full 20-cut par run of Job #2417 delivers 2,100 cards with grade S, plus the rules (clamp, jog, air cut, lift height) |
 | `hint-harness.js` | The hint engine plays every job (and 40 random jobs) by itself, meets the order within par with nothing ruined; lift trade-off and curl behaviour |
+| `assets-harness.js` | Asset slots are complete, filenames map to slots, manifest built correctly |
 | `maintenance-harness.js` | Blade/stick wear across jobs, fraying, depth effects, stick rotation, and the blade-change order with safety violations |
 
 ## 3. Manual playtest checklist

@@ -35,6 +35,9 @@ npm run check   # tests + build: run before every commit/push
 6. **Batch related changes** (5–10) before handing back a package; don't deliver after every tiny edit.
 7. Commit messages: short imperative summary line, then details.
 
+## Assets
+- Sounds/art are slots in `src/assets/registry.js`; files live in `public/assets/` with `manifest.json`. Import Jude's files with `node tools/prepare-assets.mjs --import <dir>` (see docs/ASSETS.md). Never ship placeholder/test files there.
+
 ## Domain notes
 - Inches everywhere in core. Fractions display to 1/64 via `frac()`.
 - Lift = `{ W, D, layers[] }`; each layer is an affine local→sheet (canvas convention). See `core/geometry.js` header.

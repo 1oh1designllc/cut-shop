@@ -4,6 +4,7 @@ import { JOBS } from '../core/jobs.js';
 import { randomJob } from '../core/jobgen.js';
 import { nextHint } from '../core/hint.js';
 import { sfx } from '../audio/sfx.js';
+import { loadAssets } from '../assets/loader.js';
 import { drawTable } from '../render/tableView.js';
 import { createFrontRenderer } from '../render/frontView.js';
 import { useSnapshot, useCompact } from './hooks.js';
@@ -17,6 +18,7 @@ import Tray from './Tray.jsx';
 import Ticket from './Ticket.jsx';
 import Results from './Results.jsx';
 import Briefing from './Briefing.jsx';
+import AssetCheck from './AssetCheck.jsx';
 
 const reduceMotion = typeof window !== 'undefined' && !!window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
@@ -28,6 +30,13 @@ function initialJob() {
 }
 
 export default function App() {
+  const [hash, setHash] = useState(() => (typeof location !== 'undefined' ? location.hash : ''));
+  useEffect(() => { const on = () => setHash(location.hash); window.addEventListener('hashchange', on); return () => window.removeEventListener('hashchange', on); }, []);
+  if (hash === '#assets') return <AssetCheck />;
+  return <Game />;
+}
+
+function Game() {
   const [jobId, setJobId] = useState(initialJob);
   const [random, setRandom] = useState(null); // the current random job, if any
   const job = (random && random.id === jobId ? random : JOBS.find((j) => j.id === jobId)) || JOBS[0];
@@ -35,6 +44,7 @@ export default function App() {
   const s = useSnapshot(game);
   const [guides, setGuides] = useState(true);
   const [sound, setSound] = useState(true);
+  const [, setAssetsReady] = useState(false); // re-render once Jude's art has loaded
   const [showHint, setShowHint] = useState(false);
   const [bests, setBests] = useState(loadBests);
   const [result, setResult] = useState(null); // { isNew, best } for the finished run
@@ -62,7 +72,8 @@ export default function App() {
   const idx = JOBS.findIndex((j) => j.id === job.id);
   const nextJob = idx >= 0 && idx < JOBS.length - 1 ? JOBS[idx + 1] : { id: 'random', label: 'New random job' };
 
-  useEffect(() => { sfx.on = sound; }, [sound]);
+  useEffect(() => { sfx.setOn(sound); }, [sound]);
+  useEffect(() => { loadAssets().then(() => setAssetsReady(true)); }, []);
   useEffect(() => { saveMachine(game.machine); }, [s, game]); // keep blade/stick wear between jobs
 
   // Record the best score once, when a run finishes.

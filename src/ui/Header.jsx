@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { assets } from '../assets/loader.js';
 
 export const fmtTime = (ms) => { const s = Math.floor(ms / 1000); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
 
@@ -11,7 +12,7 @@ export default function Header({ game, s, sound, onSound }) {
     <header>
       <div className="brand">
         <div className="hazard" aria-hidden="true" />
-        <div><h1>Cut Shop</h1><small>Guillotine floor · Prototype 1</small></div>
+        <div><h1>{assets.artUrl['ui.wordmark'] ? <img className="wordmark" src={assets.artUrl['ui.wordmark']} alt="Cut Shop" /> : 'Cut Shop'}</h1><small>Guillotine floor · Prototype 1</small></div>
       </div>
       <div className="stats">
         <div className="stat"><b>{fmtTime(ms)}</b><span>Time</span></div>

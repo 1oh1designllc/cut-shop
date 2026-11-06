@@ -4,6 +4,7 @@
  * fingers, clamp bar, bolted blade, light-curtain posts.
  */
 import { lerp, ease } from '../core/geometry.js';
+import { assets } from '../assets/loader.js';
 
 export function createFrontRenderer() {
   let clampPos = 0;
@@ -14,19 +15,30 @@ export function createFrontRenderer() {
     const { ctx, w, h, dpr } = view;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0); ctx.clearRect(0, 0, w, h);
     const k = w / 25, vy = k * 1.45, tableY = h * 0.76, X = (x) => k * 1.5 + x * k, topH = h * 0.12;
-    ctx.fillStyle = '#101214'; ctx.fillRect(0, 0, w, h);
-    ctx.fillStyle = '#2b3034'; ctx.fillRect(k * 0.9, topH, w - k * 1.8, tableY - topH);
+    const A = assets.art; // Jude's art for any slot that has it; placeholders otherwise
+    if (A['front.backdrop']) ctx.drawImage(A['front.backdrop'], 0, 0, w, h);
+    else {
+      ctx.fillStyle = '#101214'; ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = '#2b3034'; ctx.fillRect(k * 0.9, topH, w - k * 1.8, tableY - topH);
+    }
     // back gauge fingers: closer to the blade = brighter and taller
     const near = 1 - s.gauge / 22;
     const fh = (tableY - topH) * (0.55 + 0.4 * near);
     const lum = Math.round(110 + near * 90);
     ctx.fillStyle = `rgb(${lum},${lum + 4},${lum + 8})`;
-    for (let x = 0.4; x < 21.5; x += 2.4) ctx.fillRect(X(x), tableY - fh, k * (0.55 + 0.3 * near), fh);
+    for (let x = 0.4; x < 21.5; x += 2.4) {
+      const fw = k * (0.55 + 0.3 * near);
+      if (A['front.finger']) ctx.drawImage(A['front.finger'], X(x), tableY - fh, fw, fh);
+      else ctx.fillRect(X(x), tableY - fh, fw, fh);
+    }
     // table
-    const tg = ctx.createLinearGradient(0, tableY, 0, h); tg.addColorStop(0, '#b4bbc0'); tg.addColorStop(1, '#7c858b');
-    ctx.fillStyle = tg; ctx.fillRect(0, tableY, w, h - tableY);
-    ctx.strokeStyle = 'rgba(0,0,0,.16)'; ctx.lineWidth = 2;
-    for (let x = -6; x < 32; x += 2.2) { ctx.beginPath(); ctx.moveTo(X(x), tableY); ctx.lineTo(X(x) + (X(x) - w / 2) * 0.7, h); ctx.stroke(); }
+    if (A['front.table']) ctx.drawImage(A['front.table'], 0, tableY, w, h - tableY);
+    else {
+      const tg = ctx.createLinearGradient(0, tableY, 0, h); tg.addColorStop(0, '#b4bbc0'); tg.addColorStop(1, '#7c858b');
+      ctx.fillStyle = tg; ctx.fillRect(0, tableY, w, h - tableY);
+      ctx.strokeStyle = 'rgba(0,0,0,.16)'; ctx.lineWidth = 2;
+      for (let x = -6; x < 32; x += 2.2) { ctx.beginPath(); ctx.moveTo(X(x), tableY); ctx.lineTo(X(x) + (X(x) - w / 2) * 0.7, h); ctx.stroke(); }
+    }
     // lift
     let stackTop = tableY;
     if (s.table) {
@@ -55,8 +67,11 @@ export function createFrontRenderer() {
     clampPos += (target - clampPos) * (opts.reduceMotion ? 1 : 0.22);
     const clampY = lerp(clampIdle, stackTop, clampPos);
     ctx.fillStyle = '#5c656c'; ctx.fillRect(X(2), topH, k * 0.5, clampY - topH); ctx.fillRect(X(19.5), topH, k * 0.5, clampY - topH);
-    const cg = ctx.createLinearGradient(0, clampY - 0.9 * vy, 0, clampY); cg.addColorStop(0, '#8a939a'); cg.addColorStop(1, '#5a6268');
-    ctx.fillStyle = cg; ctx.fillRect(X(-0.8), clampY - 0.9 * vy, 23.4 * k, 0.9 * vy);
+    if (A['front.clamp']) ctx.drawImage(A['front.clamp'], X(-0.8), clampY - 0.9 * vy, 23.4 * k, 0.9 * vy);
+    else {
+      const cg = ctx.createLinearGradient(0, clampY - 0.9 * vy, 0, clampY); cg.addColorStop(0, '#8a939a'); cg.addColorStop(1, '#5a6268');
+      ctx.fillStyle = cg; ctx.fillRect(X(-0.8), clampY - 0.9 * vy, 23.4 * k, 0.9 * vy);
+    }
     // blade
     let p = 0;
     if (s.anim.cutAt) {
@@ -64,6 +79,8 @@ export function createFrontRenderer() {
       if (tt < 1) p = tt < 0.4 ? ease(tt / 0.4) : tt < 0.55 ? 1 : 1 - ease((tt - 0.55) / 0.45);
     }
     const bIdle = clampIdle - 0.9 * vy - 4, bBot = lerp(bIdle, tableY + 2, p), sx = -k * 1.1 * p;
+    if (A['front.blade']) ctx.drawImage(A['front.blade'], X(-1) + sx, topH, 23.6 * k, bBot - topH);
+    else {
     const bg = ctx.createLinearGradient(0, topH, 0, bBot); bg.addColorStop(0, '#6d767c'); bg.addColorStop(0.85, '#cfd5d9'); bg.addColorStop(1, '#f3f5f6');
     ctx.fillStyle = bg; ctx.beginPath();
     ctx.moveTo(X(-1) + sx, topH); ctx.lineTo(X(22.6) + sx, topH); ctx.lineTo(X(22.6) + sx, bBot - k * 0.7); ctx.lineTo(X(-1) + sx, bBot); ctx.closePath(); ctx.fill();
@@ -72,7 +89,10 @@ export function createFrontRenderer() {
       ctx.fillStyle = '#2a2f33'; ctx.beginPath(); ctx.arc(bx, by, k * 0.32, 0, Math.PI * 2); ctx.fill();
       ctx.fillStyle = '#9aa2a8'; ctx.beginPath(); ctx.arc(bx, by, k * 0.14, 0, Math.PI * 2); ctx.fill();
     }
+    }
     // housing with hazard stripe
+    if (A['front.housing']) ctx.drawImage(A['front.housing'], 0, 0, w, topH);
+    else {
     ctx.fillStyle = '#262a2e'; ctx.fillRect(0, 0, w, topH);
     ctx.save(); ctx.beginPath(); ctx.rect(0, topH - 7, w, 7); ctx.clip();
     ctx.fillStyle = '#f2c230';
@@ -80,10 +100,16 @@ export function createFrontRenderer() {
     ctx.restore();
     ctx.fillStyle = '#9ba2a7'; ctx.font = `600 ${Math.max(10, k * 0.55)}px "Saira Condensed", sans-serif`; ctx.textBaseline = 'middle';
     ctx.fillText('CS-78  HYDRAULIC GUILLOTINE', k * 0.8, topH / 2 - 2);
+    }
     // light curtain posts
     const led = s.busy ? '#ff3b30' : '#5fd08a';
     for (const px of [k * 0.15, w - k * 0.75]) {
-      ctx.fillStyle = '#1c1f22'; ctx.fillRect(px, topH, k * 0.6, tableY - topH);
+      if (A['front.post']) {
+        ctx.save();
+        if (px > w / 2) { ctx.translate(px + k * 0.6, topH); ctx.scale(-1, 1); ctx.drawImage(A['front.post'], 0, 0, k * 0.6, tableY - topH); }
+        else ctx.drawImage(A['front.post'], px, topH, k * 0.6, tableY - topH);
+        ctx.restore();
+      } else { ctx.fillStyle = '#1c1f22'; ctx.fillRect(px, topH, k * 0.6, tableY - topH); }
       ctx.fillStyle = led; for (let y = topH + 8; y < tableY - 4; y += 10) ctx.fillRect(px + k * 0.22, y, k * 0.16, 3);
     }
     ctx.fillStyle = '#5a6268'; ctx.fillRect(0, tableY - 2, w, 3);

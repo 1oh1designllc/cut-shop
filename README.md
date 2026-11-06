@@ -52,3 +52,4 @@ Pushing to `main` runs `.github/workflows/deploy.yml`: harnesses → build → G
 - [Build plan & roadmap](docs/CutShop_Build_Plan.md)
 - [Game design](docs/GAME_DESIGN.md)
 - [Run & test runbook](docs/TESTING.md)
+- [Sounds & artwork: slots and how to send them](docs/ASSETS.md)

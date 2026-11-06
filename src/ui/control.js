@@ -10,17 +10,23 @@ export const keys = { f: false, j: false };
 /** Move the gauge; ticks once per 1/16" crossed. */
 export function moveGauge(game, v) {
   const before = game.state.gauge;
-  if (game.setGauge(v) && Math.floor(game.state.gauge * 16) !== Math.floor(before * 16)) sfx.tick();
+  if (game.setGauge(v) && Math.floor(game.state.gauge * 16) !== Math.floor(before * 16)) sfx.wheel();
 }
 
-export function doJog(game) { if (game.jog()) sfx.rattle(); }
-export function doClamp(game) { if (game.toggleClamp()) sfx.hiss(); }
+export function doJog(game) { if (game.jog()) sfx.jog(); }
+export function doClamp(game) { if (game.toggleClamp()) (game.state.clampDown ? sfx.clampDown() : sfx.clampUp()); }
 
 /** Blade down at 330 ms (pieces split), back up and clamp released at 820 ms. */
 export function requestCut(game) {
-  if (!game.beginCut()) return;
-  setTimeout(() => { sfx.thunk(); game.cut(); }, 330);
-  setTimeout(() => { game.afterCut(); sfx.hiss(); }, 820);
+  if (!game.beginCut()) { sfx.beep(); return; }
+  const st = game.state.table;
+  const passInches = Math.min(game.state.liftSheets, st.layers.length * game.job.sheets) * game.stock.caliper;
+  setTimeout(() => {
+    sfx.cut(passInches >= 1.0);
+    const r = game.cut();
+    if (r && !r.air) setTimeout(() => sfx.trimFall(), 160);
+  }, 330);
+  setTimeout(() => { game.afterCut(); sfx.clampUp(); }, 820);
 }
 
 export function bindKeyboard(game) {
