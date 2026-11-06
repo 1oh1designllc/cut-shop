@@ -10,7 +10,7 @@ export const keys = { f: false, j: false };
 /** Move the gauge; ticks once per 1/16" crossed. */
 export function moveGauge(game, v) {
   const before = game.state.gauge;
-  if (game.setGauge(v) && Math.floor(game.state.gauge * 16) !== Math.floor(before * 16)) sfx.wheel();
+  if (game.setGauge(v)) sfx.wheel(Math.floor(game.state.gauge * 16) !== Math.floor(before * 16));
 }
 
 export function doJog(game) { if (game.jog()) sfx.jog(); }

@@ -10,7 +10,8 @@
  *   cut-thick-1.m4a, "Cut Thick 2.mov", clamp_down.wav → sounds/cut-thick-1.mp3 …
  *   job-business-cards.svg, front.blade.png           → art/job.business-cards.svg …
  * Audio (and the sound track of videos) is converted with ffmpeg: mono MP3, silence
- * trimmed from both ends (not for the idle loop), loudness evened out.
+ * trimmed from both ends (not for the idle loop), loudness evened out, tiny fades
+ * at each end so takes and loops don't click.
  * Files that don't match a slot are listed and skipped.
  * ------------------------------------------------------------------
  */
@@ -66,8 +67,8 @@ function importDir(dir) {
       if (!ff) { console.log(`  ✗ ${f}: ffmpeg not installed, can't convert audio`); continue; }
       const trim = m.slot === 'idle' ? [] : ['silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.05', 'areverse',
         'silenceremove=start_periods=1:start_threshold=-45dB:start_silence=0.15', 'areverse'];
-      const r = spawnSync('ffmpeg', ['-v', 'error', '-y', '-i', src, '-vn', '-ac', '1', '-ar', '44100',
-        '-af', [...trim, 'loudnorm=I=-16:TP=-1.5'].join(','), '-b:a', '128k', out]);
+      const r = spawnSync('ffmpeg', ['-nostdin', '-v', 'error', '-y', '-i', src, '-vn', '-ac', '1', '-ar', '44100',
+        '-af', [...trim, 'loudnorm=I=-16:TP=-1.5', 'afade=t=in:d=0.01', 'areverse', 'afade=t=in:d=0.03', 'areverse'].join(','), '-b:a', '128k', out]);
       if (r.status === 0) console.log(`  sound  ${f} → sounds/${m.slot}-${take}.mp3`);
       else console.log(`  ✗ ${f}: ${String(r.stderr).trim().split('\n').pop()}`);
     } else skipped.push(f);

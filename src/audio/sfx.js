@@ -7,6 +7,10 @@ import { assets } from '../assets/loader.js';
 
 const buffers = {}; // url → AudioBuffer | Promise
 let idleNode = null;
+let wheelNode = null, wheelTimer = 0;
+
+/** Mix levels for Jude's recordings (all were loudness-matched on import). */
+const LEVEL = { 'cut-thick': 1, 'cut-thin': 0.75, 'clamp-down': 0.7, 'clamp-up': 0.6, 'trim-fall': 0.8, jog: 0.85, wheel: 0.5, bolt: 0.8, 'blade-set': 0.8, handle: 0.7, beep: 0.6 };
 
 export const sfx = {
   on: true,
@@ -31,9 +35,10 @@ export const sfx = {
       .then((buf) => (buffers[url] = buf)).catch(() => (buffers[url] = null));
     return buffers[url];
   },
-  playBuffer(buf, gain = 1, loop = false) {
+  playBuffer(buf, gain = 1, loop = false, vary = false) {
     const c = this.ctx, src = c.createBufferSource(), g = c.createGain();
     src.buffer = buf; src.loop = loop; g.gain.value = gain;
+    if (vary) src.playbackRate.value = 0.96 + Math.random() * 0.08; // so repeats of one take don't sound identical
     src.connect(g); g.connect(c.destination); src.start();
     return { src, g };
   },
@@ -44,7 +49,7 @@ export const sfx = {
     const urls = assets.sounds[slot];
     if (urls?.length) {
       const buf = buffers[urls[Math.floor(Math.random() * urls.length)]];
-      if (buf && !(buf instanceof Promise)) { this.playBuffer(buf, gain); return; }
+      if (buf && !(buf instanceof Promise)) { this.playBuffer(buf, gain * (LEVEL[slot] ?? 1), false, true); return; }
     }
     if (fallback) fallback.call(this);
   },
@@ -89,7 +94,25 @@ export const sfx = {
   clampUp() { this.play('clamp-up', this.hiss); },
   trimFall() { this.play('trim-fall', this.flutter); },
   jog() { this.play('jog', this.rattle); },
-  wheel() { this.play('wheel', this.tick, 0.6); },
+  /** Hand wheel: Jude's recording loops while the gauge keeps moving; else a tick per 1/16". */
+  wheel(crossed) {
+    const c = this.init(); if (!c || !this.on) return;
+    const url = assets.sounds.wheel?.[0], buf = url && buffers[url];
+    if (buf && !(buf instanceof Promise)) {
+      if (!wheelNode) {
+        wheelNode = this.playBuffer(buf, 0, true);
+        wheelNode.src.loopStart = 0; wheelNode.src.loopEnd = buf.duration;
+        wheelNode.g.gain.setTargetAtTime(LEVEL.wheel, c.currentTime, 0.03);
+      }
+      clearTimeout(wheelTimer);
+      wheelTimer = setTimeout(() => {
+        const n = wheelNode; wheelNode = null;
+        n.g.gain.setTargetAtTime(0, c.currentTime, 0.04); n.src.stop(c.currentTime + 0.25);
+      }, 180);
+      return;
+    }
+    if (crossed) this.tick();
+  },
   beep() { this.play('beep', function () { this.tone(880, 0.12, 0.08, 'square'); }); },
   bolt() { this.play('bolt', this.tick); },
   bladeSet() { this.play('blade-set', this.hiss); },

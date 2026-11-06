@@ -60,7 +60,8 @@ Each phase ends in something playable on a phone from the GitHub Pages link.
 ### Phase 4 — Art & sound
 - [x] Asset drop-in (2026-11-05): every sound and art piece is a named slot (docs/ASSETS.md); supplied files replace stand-ins one by one; `tools/prepare-assets.mjs` imports, converts and builds the manifest; check page at `#assets`
 - [ ] Final vector art: machine face, table, stack, UI chrome (from Jude's Illustrator files)
-- [ ] Recorded sounds from the real cutter: clamp hiss, blade thunk, trim fall, gauge motor
+- [x] Recorded sounds from Jude's cutter (2026-11-06): thick + thin cut, clamp down/up, trim falling, jogging, hand wheel (loops while turning), idle hum, bolt clanks — 9 of 12 slots
+- [ ] Still to record: warning beep (if the machine has one), blade set down on the bench, hex handle screwing in
 - [ ] Juice: screen shake on heavy cuts, paper flutter, finished-stack counter
 - **Milestone 4:** looks and sounds like the shop
 
