@@ -65,12 +65,20 @@ console.log('\nPar run — Job #2417 (business cards 21-up)');
 console.log('\nRules');
 {
   const g = makeGame();
-  check('cannot cut without clamp', g.beginCut() === false && g.state.event.kind === 'warn');
+  check('holding both buttons cuts without pre-clamping: the clamp drops by itself', g.beginCut() === true && g.state.clampDown && g.state.busy);
+  g.cut(); g.afterCut();
+  check('…and releases after the cycle', !g.state.clampDown && !g.state.busy);
+  const d = g.state.table.D;
+  g.beginCut(); g.abortCut();
+  check('letting go before the blade bottoms out stops the cut (nothing cut, clamp up)', g.state.table.D === d && !g.state.busy && !g.state.clampDown && g.state.event.kind === 'warn');
   g.toggleClamp();
   check('cannot move gauge while clamped', g.setGauge(10) === false);
   check('cannot jog while clamped', g.jog() === false);
   g.toggleClamp();
   check('gauge clamps to travel', (g.setGauge(40), g.state.gauge === 19.5));
+}
+{
+  const g = makeGame();
   const air = cycle(g, 19.5);
   check('air cut when gauge is behind the lift', air.air === true && g.state.table.D === 18);
 }

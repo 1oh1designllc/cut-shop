@@ -15,8 +15,7 @@ function steps(h, s) {
   list.push({ label: `Gauge ${frac(h.gauge)}"`, done: ready && Math.abs(s.gauge - h.gauge) < 0.0005 });
   if (s.curled) list.push({ label: 'Decurl', done: false });
   list.push({ label: 'Jog', done: ready && s.jogged });
-  list.push({ label: 'Clamp', done: ready && s.clampDown });
-  list.push({ label: 'Cut', done: false });
+  list.push({ label: 'Hold both CUT', done: false });
   return list;
 }
 

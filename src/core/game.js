@@ -6,7 +6,8 @@
  * `game.state` directly every frame.
  *
  * A real cut is three steps so the UI can animate the blade:
- *   beginCut()  → checks, marks the machine busy
+ *   beginCut()  → both cut buttons held: the clamp drops by itself, machine busy
+ *                 (Jude: the only thing that stops a cut is not holding both buttons)
  *   cut()       → the blade reaches the stick: split the lift and sort the pieces
  *   afterCut()  → blade back up, clamp releases, job may finish
  * Harnesses can call cut() + afterCut() directly.
@@ -84,7 +85,7 @@ export function createGame(job, opts = {}) {
   }
 
   s = fresh();
-  const intro = () => job.intro || `Job #${job.id} is on the table. Start by trimming the foot margin: set the gauge, jog, clamp, cut.`;
+  const intro = () => job.intro || `Job #${job.id} is on the table. Start by trimming the foot margin: set the gauge, jog, then hold both CUT buttons.`;
   say(intro());
   snap = { ...s };
 
@@ -143,18 +144,32 @@ export function createGame(job, opts = {}) {
       return true;
     },
 
+    /** Both buttons held: the cycle runs. The clamp comes down automatically (no pre-clamp needed). */
     beginCut() {
       if (blocked()) return false;
-      if (!s.table) { say('Nothing on the table. Load a piece from the tray.', 'warn'); commit(); return false; }
-      if (!s.clampDown) { say('Clamp the lift before cutting (W).', 'warn'); commit(); return false; }
-      s.busy = true; s.anim.cutAt = now(); startClock(); commit();
+      s.clampDown = true; s.busy = true; s.anim.cutAt = now(); startClock(); commit();
+      return true;
+    },
+
+    /** A cut button was let go before the blade bottomed out: the cycle stops, nothing is cut. */
+    abortCut() {
+      if (!s.busy) return false;
+      s.busy = false; s.clampDown = false; s.anim.cutAt = 0;
+      say('Cut stopped. Keep both CUT buttons down until the blade reaches the bottom.', 'warn');
+      commit();
       return true;
     },
 
     /** The blade comes down. Returns a summary of what happened. */
     cut() {
       const st = s.table;
-      if (!st || !s.clampDown) return null;
+      s.clampDown = true; // the cycle always clamps first
+      if (!st) {
+        s.cuts++;
+        say('The blade cycled with nothing on the table. Load a piece from the tray.', 'warn');
+        commit();
+        return { air: true };
+      }
       let err = 0;
       if (!s.jogged) err = (rng() < 0.5 ? -1 : 1) * (0.03 + rng() * 0.045);
       const g = r3(s.gauge + err);

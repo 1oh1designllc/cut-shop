@@ -16,17 +16,24 @@ export function moveGauge(game, v) {
 export function doJog(game) { if (game.jog()) sfx.jog(); }
 export function doClamp(game) { if (game.toggleClamp()) (game.state.clampDown ? sfx.clampDown() : sfx.clampUp()); }
 
-/** Blade down at 330 ms (pieces split), back up and clamp released at 820 ms. */
-export function requestCut(game) {
+/**
+ * Blade down at 330 ms (pieces split), back up and clamp released at 820 ms.
+ * `stillHeld()` is asked when the blade would hit the stick: letting go of a
+ * button before then stops the cycle, like a real two-hand control.
+ */
+export function requestCut(game, stillHeld = () => true) {
+  const preClamped = game.state.clampDown;
   if (!game.beginCut()) { sfx.beep(); return; }
+  if (!preClamped) sfx.clampDown(); // the cycle drops the clamp first
   const st = game.state.table;
-  const passInches = Math.min(game.state.liftSheets, st.layers.length * game.job.sheets) * game.stock.caliper;
+  const passInches = st ? Math.min(game.state.liftSheets, st.layers.length * game.job.sheets) * game.stock.caliper : 0;
   setTimeout(() => {
+    if (!stillHeld()) { game.abortCut(); sfx.clampUp(); return; }
     sfx.cut(passInches >= 1.0);
     const r = game.cut();
     if (r && !r.air) setTimeout(() => sfx.trimFall(), 160);
+    setTimeout(() => { game.afterCut(); sfx.clampUp(); }, 490);
   }, 330);
-  setTimeout(() => { game.afterCut(); sfx.clampUp(); }, 820);
 }
 
 export function bindKeyboard(game) {

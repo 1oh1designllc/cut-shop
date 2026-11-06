@@ -28,7 +28,7 @@ export default function MachinePanel({ game, s, viewRef }) {
         <div className="actions">
           <button className={'btn' + (s.curled ? ' attn' : '')} type="button" onClick={() => doJog(game)}>{s.curled ? 'Decurl' : 'Jog lift'} <kbd>Q</kbd></button>
           <button className={'btn' + (s.clampDown ? ' on' : '')} type="button" onClick={() => doClamp(game)}>
-            {s.clampDown ? 'Release' : 'Clamp'} <kbd>W</kbd>
+            {s.clampDown ? 'Release' : 'Pre-clamp'} <kbd>W</kbd>
           </button>
           <button className="btn" type="button" onClick={() => game.rotate(1)}>Rotate 90° <kbd>R</kbd></button>
           <button className="btn" type="button" onClick={() => game.rotate(2)}>Turn 180° <kbd>T</kbd></button>
@@ -149,7 +149,11 @@ export function useTwoHand(game) {
       let prog = 0;
       if (l && r) { if (!holdStart) holdStart = t; prog = (t - holdStart) / 220; }
       else { holdStart = 0; if (mouseStart.current) prog = (t - mouseStart.current) / 650; }
-      if (prog >= 1 && !latch) { latch = true; requestCut(game); }
+      if (prog >= 1 && !latch) {
+        latch = true;
+        // Still held = both buttons (or F+J), or the mouse still holding its one button.
+        requestCut(game, () => ((L.current.size > 0 || keys.f) && (R.current.size > 0 || keys.j)) || mouseStart.current > 0);
+      }
       if (!l && !r) latch = false;
       const pv = latch ? 1 : clamp(prog, 0, 1);
       if (lRef.current) { lRef.current.style.setProperty('--p', pv); lRef.current.classList.toggle('down', l); }
@@ -169,7 +173,7 @@ export function useTwoHand(game) {
     onPointerCancel: (e) => { set.current.delete(e.pointerId); mouseStart.current = 0; },
     onLostPointerCapture: (e) => { set.current.delete(e.pointerId); if (e.pointerType === 'mouse') mouseStart.current = 0; },
     onContextMenu: (e) => e.preventDefault(),
-    onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); requestCut(game); } },
+    onKeyDown: (e) => { if (e.key === 'Enter') { e.preventDefault(); requestCut(game); } }, // keyboard-only users: Enter runs a full cycle
   });
 
   return { left: { ref: lRef, ...handlers(L) }, right: { ref: rRef, ...handlers(R) } };

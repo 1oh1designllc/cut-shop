@@ -4,7 +4,7 @@
 
 1. **Job ticket** arrives: item, stock, quantity, press sheet, finished size, layout, tolerance, due time.
 2. **Plan** the cut order on the table view.
-3. **For each cut:** set the back gauge → jog → clamp → two-hand cut.
+3. **For each cut:** set the back gauge → jog → hold both CUT buttons (the clamp drops by itself, then the blade; only releasing a button stops the cycle). Pre-clamp is optional, like the foot pedal.
 4. **Sort:** finished pieces, trim, and work-in-progress go to their places automatically.
 5. **Grade:** good pieces delivered, ruined pieces, accuracy, cuts vs par, time vs par.
 

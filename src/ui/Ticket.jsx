@@ -68,7 +68,7 @@ export default function Ticket({ game, s, guides, onGuides, play, showLift = fal
         <ol className="how">
           <li><b>Set the gauge.</b> Turn the wheel or type a number. The red line is where the blade drops; the lift's front edge sticks out past it.</li>
           <li><b>Jog</b> the lift square against the gauge. Skip it and the cut wanders.</li>
-          <li><b>Clamp</b>, then <b>hold both CUT buttons</b>.</li>
+          <li><b>Hold both CUT buttons.</b> The clamp drops by itself, then the blade. (Pre-clamp is optional, like the foot pedal: it holds the lift so you can check the cut line.)</li>
           <li>Trim and finished cards sort themselves. Pieces with work left go to the tray. <b>Rotate</b> or <b>turn</b> the lift to reach other edges.</li>
           <li>Strips of the same size can go back in together with <b>Add to lift</b>, up to {frac(job.maxLift)}" high.</li>
         </ol>

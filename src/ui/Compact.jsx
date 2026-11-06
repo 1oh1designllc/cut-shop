@@ -118,7 +118,7 @@ function Deck({ game, s }) {
         <CutButton side="L" props={left} />
         <div className="actions">
           <button className={'btn' + (s.curled ? ' attn' : '')} type="button" onClick={() => doJog(game)}>{s.curled ? 'Decurl' : 'Jog'}</button>
-          <button className={'btn' + (s.clampDown ? ' on' : '')} type="button" onClick={() => doClamp(game)}>{s.clampDown ? 'Release' : 'Clamp'}</button>
+          <button className={'btn' + (s.clampDown ? ' on' : '')} type="button" onClick={() => doClamp(game)}>{s.clampDown ? 'Release' : 'Pre-clamp'}</button>
           <button className="btn" type="button" onClick={() => game.rotate(1)}>Rotate</button>
           <button className="btn" type="button" onClick={() => game.rotate(2)}>Turn</button>
         </div>
