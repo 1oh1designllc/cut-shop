@@ -10,30 +10,43 @@ export const keys = { f: false, j: false };
 /** Move the gauge; ticks once per 1/16" crossed. */
 export function moveGauge(game, v) {
   const before = game.state.gauge;
-  if (game.setGauge(v)) sfx.wheel(Math.floor(game.state.gauge * 16) !== Math.floor(before * 16));
+  if (game.setGauge(v)) sfx.wheel(Math.floor(game.state.gauge * 16) !== Math.floor(before * 16), game.state.gauge - before);
 }
 
 export function doJog(game) { if (game.jog()) sfx.jog(); }
 export function doClamp(game) { if (game.toggleClamp()) (game.state.clampDown ? sfx.clampDown() : sfx.clampUp()); }
 
 /**
- * Blade down at 330 ms (pieces split), back up and clamp released at 820 ms.
- * `stillHeld()` is asked when the blade would hit the stick: letting go of a
- * button before then stops the cycle, like a real two-hand control.
+ * One two-hand cut cycle. With Jude's recordings the cycle is timed to the take:
+ * the blade goes through the paper at the take's loudest moment and the cycle
+ * lasts as long as the sound. Without recordings: the quick synth timing.
+ * `stillHeld()` is polled until the blade bottoms out: letting go of a button
+ * stops the cycle, like a real two-hand control.
  */
 export function requestCut(game, stillHeld = () => true) {
   const preClamped = game.state.clampDown;
-  if (!game.beginCut()) { sfx.beep(); return; }
-  if (!preClamped) sfx.clampDown(); // the cycle drops the clamp first
   const st = game.state.table;
   const passInches = st ? Math.min(game.state.liftSheets, st.layers.length * game.job.sheets) * game.stock.caliper : 0;
-  setTimeout(() => {
-    if (!stillHeld()) { game.abortCut(); sfx.clampUp(); return; }
-    sfx.cut(passInches >= 1.0);
+  const take = sfx.cutTake(passInches >= 1.0);
+  const hitMs = take ? take.hitMs : 330;
+  const endMs = take ? Math.max(take.endMs, hitMs + 400) : 820;
+  if (!game.beginCut({ hitMs, endMs })) return;
+  if (take) take.play(); else if (!preClamped) sfx.clampDown();
+  const t0 = performance.now();
+  const poll = setInterval(() => {
+    if (!stillHeld()) {
+      clearInterval(poll);
+      if (take) take.stop();
+      game.abortCut(); sfx.clampUp();
+      return;
+    }
+    if (performance.now() - t0 < hitMs) return;
+    clearInterval(poll);
+    if (!take) sfx.cut(passInches >= 1.0);
     const r = game.cut();
     if (r && !r.air) setTimeout(() => sfx.trimFall(), 160);
-    setTimeout(() => { game.afterCut(); sfx.clampUp(); }, 490);
-  }, 330);
+    setTimeout(() => { game.afterCut(); if (!take) sfx.clampUp(); }, endMs - hitMs);
+  }, 30);
 }
 
 export function bindKeyboard(game) {

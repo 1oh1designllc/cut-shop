@@ -75,8 +75,12 @@ export function createFrontRenderer() {
     // blade
     let p = 0;
     if (s.anim.cutAt) {
-      const tt = (t - s.anim.cutAt) / 820;
-      if (tt < 1) p = tt < 0.4 ? ease(tt / 0.4) : tt < 0.55 ? 1 : 1 - ease((tt - 0.55) / 0.45);
+      const el = t - s.anim.cutAt, hit = s.anim.hitMs, end = s.anim.endMs;
+      const start = Math.min(hit * 0.45, 700), dwell = Math.min(150, (end - hit) * 0.2); // clamp lands first, then the blade travels
+      if (el < start) p = 0;
+      else if (el < hit) p = ease((el - start) / (hit - start));
+      else if (el < hit + dwell) p = 1;
+      else if (el < end) p = 1 - ease((el - hit - dwell) / (end - hit - dwell));
     }
     const bIdle = clampIdle - 0.9 * vy - 4, bBot = lerp(bIdle, tableY + 2, p), sx = -k * 1.1 * p;
     if (A['front.blade']) ctx.drawImage(A['front.blade'], X(-1) + sx, topH, 23.6 * k, bBot - topH);

@@ -7,7 +7,25 @@ import { assets } from '../assets/loader.js';
 
 const buffers = {}; // url → AudioBuffer | Promise
 let idleNode = null;
-let wheelNode = null, wheelTimer = 0;
+let wheelNode = null, wheelTimer = 0, wheelLast = 0, wheelSpeed = 0;
+/** Speed (inches of gauge travel per second) the hand-wheel recording was made at. Rough; tune from Jude's video. */
+const WHEEL_REC_SPEED = 1.5;
+
+/**
+ * Blade-hit time in a cut take: the FIRST 20 ms window (after 0.25 s, within the
+ * first 60%) that's within 3 dB of the loudest. Jude's takes have several bursts of
+ * similar loudness; the first is taken as the blade through the paper. Rough —
+ * to be checked against his video.
+ */
+function findHit(buf) {
+  const d = buf.getChannelData(0), sr = buf.sampleRate, hop = Math.floor(sr / 50);
+  const from = Math.floor(0.25 * sr), to = Math.min(d.length - hop, Math.floor(0.6 * d.length));
+  const e = [];
+  for (let i = from; i < to; i += hop) { let sum = 0; for (let j = 0; j < hop; j++) sum += d[i + j] * d[i + j]; e.push(sum); }
+  const max = Math.max(...e, 1e-12);
+  const k = e.findIndex((v) => v >= max * 0.5);
+  return (from + Math.max(0, k) * hop) / sr;
+}
 
 /** Mix levels for Jude's recordings (all were loudness-matched on import). */
 const LEVEL = { 'cut-thick': 1, 'cut-thin': 0.75, 'clamp-down': 0.7, 'clamp-up': 0.6, 'trim-fall': 0.8, jog: 0.85, wheel: 0.5, bolt: 0.8, 'blade-set': 0.8, handle: 0.7 };
@@ -32,7 +50,7 @@ export const sfx = {
   buffer(url) {
     if (buffers[url]) return buffers[url];
     buffers[url] = fetch(url).then((r) => r.arrayBuffer()).then((b) => this.ctx.decodeAudioData(b))
-      .then((buf) => (buffers[url] = buf)).catch(() => (buffers[url] = null));
+      .then((buf) => { buf.hit = findHit(buf); return (buffers[url] = buf); }).catch(() => (buffers[url] = null));
     return buffers[url];
   },
   playBuffer(buf, gain = 1, loop = false, vary = false) {
@@ -90,20 +108,45 @@ export const sfx = {
 
   // ---- game events (recorded slot → placeholder) ----
   cut(thick) { this.play(thick ? 'cut-thick' : 'cut-thin', this.thunk); },
+
+  /**
+   * A recorded cut take, ready to play in sync with the animation:
+   * { hitMs: blade through the paper, endMs: cycle over, play(), stop() } — or null (use the synth path).
+   */
+  cutTake(thick) {
+    const c = this.init(); if (!c || !this.on) return null;
+    const urls = assets.sounds[thick ? 'cut-thick' : 'cut-thin'];
+    const ready = (urls || []).map((u) => buffers[u]).filter((b) => b && !(b instanceof Promise));
+    if (!ready.length) return null;
+    const buf = ready[Math.floor(Math.random() * ready.length)];
+    let node = null;
+    return {
+      hitMs: Math.max(250, Math.round(buf.hit * 1000)),
+      endMs: Math.round(buf.duration * 1000),
+      play: () => { node = this.playBuffer(buf, LEVEL[thick ? 'cut-thick' : 'cut-thin'] ?? 1); },
+      stop: () => { if (node) { node.g.gain.setTargetAtTime(0, c.currentTime, 0.05); node.src.stop(c.currentTime + 0.3); } },
+    };
+  },
   clampDown() { this.play('clamp-down', this.hiss); },
   clampUp() { this.play('clamp-up', this.hiss); },
   trimFall() { this.play('trim-fall', this.flutter); },
   jog() { this.play('jog', this.rattle); },
   /** Hand wheel: Jude's recording loops while the gauge keeps moving; else a tick per 1/16". */
-  wheel(crossed) {
+  wheel(crossed, dv = 0) {
     const c = this.init(); if (!c || !this.on) return;
     const url = assets.sounds.wheel?.[0], buf = url && buffers[url];
     if (buf && !(buf instanceof Promise)) {
+      // How fast is the gauge moving? The loop plays faster or slower to match.
+      const now = c.currentTime, dt = Math.min(0.25, Math.max(0.016, now - wheelLast));
+      wheelLast = now;
+      wheelSpeed = wheelSpeed * 0.7 + (Math.abs(dv) / dt) * 0.3;
+      const rate = Math.max(0.35, Math.min(1.3, wheelSpeed / WHEEL_REC_SPEED));
       if (!wheelNode) {
         wheelNode = this.playBuffer(buf, 0, true);
         wheelNode.src.loopStart = 0; wheelNode.src.loopEnd = buf.duration;
         wheelNode.g.gain.setTargetAtTime(LEVEL.wheel, c.currentTime, 0.03);
       }
+      wheelNode.src.playbackRate.setTargetAtTime(rate, now, 0.06);
       clearTimeout(wheelTimer);
       wheelTimer = setTimeout(() => {
         const n = wheelNode; wheelNode = null;

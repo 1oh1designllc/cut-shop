@@ -57,7 +57,7 @@ export function createGame(job, opts = {}) {
       cuts: 0, cutLines: [], t0: 0, tEnd: 0,
       liftSheets: initialLift, curled: !!stock.curl, maxPass: 0, extraMs: 0, ops: 0,
       frayMax: 0, safety: 0, machine,
-      anim: { jogAt: 0, cutAt: 0, fall: null },
+      anim: { jogAt: 0, cutAt: 0, hitMs: 330, endMs: 820, fall: null },
       event: null,
     };
   }
@@ -145,9 +145,10 @@ export function createGame(job, opts = {}) {
     },
 
     /** Both buttons held: the cycle runs. The clamp comes down automatically (no pre-clamp needed). */
-    beginCut() {
+    beginCut({ hitMs = 330, endMs = 820 } = {}) {
       if (blocked()) return false;
-      s.clampDown = true; s.busy = true; s.anim.cutAt = now(); startClock(); commit();
+      s.clampDown = true; s.busy = true; s.anim.cutAt = now(); s.anim.hitMs = hitMs; s.anim.endMs = endMs;
+      startClock(); commit();
       return true;
     },
 
