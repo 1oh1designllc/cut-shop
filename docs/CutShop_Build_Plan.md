@@ -3,6 +3,10 @@
 *A paper-cutting game on an industrial guillotine cutter. Stocks, sizes, blade changes.*
 *Working doc. Last updated 2026-11-05.*
 
+> **⏸ Paused 2026-11-06** — Jude put the game on the back burner to focus on other projects.
+> **Where it stands:** Phases 0–3 done and live (core loop, tutorial, hint, 6 stocks + lift trade-off, shop jobs + random jobs, blade/stick wear + blade change). Phase 4 started: asset drop-in built; 9 of 11 real cutter sounds in, roughly synced to the cut cycle and hand wheel.
+> **To resume:** (1) Jude films a timing video (thick + thin cuts, pre-clamp pedal, hand wheel, jogging) to fix the blade-hit point and wheel speed; (2) record `blade-set` and `handle` sounds; (3) artwork per docs/ASSETS.md (job designs first); then Phase 5 career mode.
+
 ---
 
 ## 1. What it is
